@@ -45,6 +45,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
@@ -61,6 +62,7 @@ public class MapsActivity extends AppCompatActivity
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
     EditText etLocationEntry;
+    Globals sharedData = Globals.getInstance();
 
     protected static final String TAG = "MapsActvity";
     @Override
@@ -250,6 +252,7 @@ public class MapsActivity extends AppCompatActivity
         myLatitude = location.getLatitude();
         myLongitude = location.getLongitude();
 
+        setCompleteCurrentAddress(location);
         mMap.clear();
 
         MarkerOptions mp = new MarkerOptions();
@@ -264,6 +267,33 @@ public class MapsActivity extends AppCompatActivity
                 new LatLng(location.getLatitude(), location.getLongitude()), 16));
 
     }
+
+    public void setCompleteCurrentAddress(Location location) {
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+
+                for (int i = 0; i < returnedAddress.getMaxAddressLineIndex(); i++) {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append(" ");
+                }
+                sharedData.setStreet(strReturnedAddress.toString());
+                sharedData.setmCountry(addresses.get(0).getCountryName());
+                sharedData.setTotalAddress(strReturnedAddress.toString()+" "+addresses.get(0).getCountryName());
+                //mStreet = strReturnedAddress.toString();
+                //mCountry = addresses.get(0).getCountryName();
+                //mTotalAddress = strReturnedAddress.toString()+" "+addresses.get(0).getCountryName();
+                Log.w(MapsActivity.TAG, "" + strReturnedAddress.toString());
+            } else {
+                Log.w(MapsActivity.TAG, "No Address returned!");
+            }
+        } catch (Exception e) {
+            Log.w(MapsActivity.TAG, "Canont get Address!");
+        }
+    }
+
 
     @Override
     protected void onStart() {
