@@ -16,6 +16,8 @@ public class Globals {
         Globals.instance = instance;
     }
 
+    public static final String TAG = "photoLocationNote";
+
 
     public static String getTotalAddress() {
         return totalAddress;

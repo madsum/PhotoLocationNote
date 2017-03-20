@@ -369,7 +369,12 @@ public class MapsActivity extends AppCompatActivity
             startActivity(myIntent);
         }
         else if (id == R.id.nav_camera) {
-            // Handle the camera action
+            Bundle bundle = new Bundle();
+            // this start camera for still photo
+            //bundle.putInt(NoteTable.COLUMN_IMAGE, CameraActivity.MEDIA_TYPE_IMAGE);
+            Intent intent = new Intent(this, CameraActivity.class);
+            intent.putExtras(bundle);
+            startActivity(intent);
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
