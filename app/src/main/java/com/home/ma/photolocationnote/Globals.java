@@ -1,5 +1,10 @@
 package com.home.ma.photolocationnote;
 
+import android.content.Context;
+import android.os.Environment;
+
+import java.io.File;
+
 /**
  * Created by ma on 19/03/2017.
  */
@@ -27,7 +32,7 @@ public class Globals {
         Globals.totalAddress = mTotalAddress;
     }
 
-    public static String getmStreet() {
+    public static String getStreet() {
         return street;
     }
 
@@ -35,18 +40,24 @@ public class Globals {
         Globals.street = street;
     }
 
-    public static String getmCountry() {
+    public static String getCountry() {
         return country;
     }
 
-    public static void setmCountry(String mCountry) {
+    public static void setCountry(String mCountry) {
         Globals.country = mCountry;
     }
 
     private static String totalAddress = null;
     private static String street = null;
     private static String country = null;
+    public static final String APPLICATION_NAME = "Photo Location Note";
+    private static File mediaStorageDir = new File(Environment.getExternalStorageDirectory().toString(),
+                "/media/" + APPLICATION_NAME + "/");
 
+    public static File getMediaStorageDir() {
+        return mediaStorageDir;
+    }
 
     private Globals() {
 

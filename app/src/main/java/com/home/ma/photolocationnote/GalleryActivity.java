@@ -1,13 +1,17 @@
 package com.home.ma.photolocationnote;
 
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,24 +20,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import com.home.ma.photolocationnote.utility.Utility;
+import android.widget.AdapterView;
+import android.widget.GridView;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity
+public class GalleryActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private GridView gridView;
+    private GridViewAdapter gridAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_gallery);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -45,7 +48,40 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        gridAdapter = new GridViewAdapter(this, R.layout.grid_item_layout, getData());
+        gridView = (GridView) findViewById(R.id.gridView);
+        gridView.setAdapter(gridAdapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+                Bitmap photo = (Bitmap) parent.getItemAtPosition(position);
+                Intent intent = new Intent(GalleryActivity.this, DetailsActivity.class);
+                intent.putExtra("image", photo);
+                //Start details activity
+                startActivity(intent);
+            }
+        });
     }
+
+    private ArrayList<Bitmap> getData() {
+        final ArrayList<Bitmap> imageItems = new ArrayList<>();
+        File photoDirector = new File(Globals.getMediaStorageDir().getPath());
+        File[] files = photoDirector.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                try{
+                    Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                    imageItems.add(bitmap);
+                }catch (Exception e){
+                    Log.i(Globals.TAG, e.getMessage());
+                }
+
+            }
+        }
+        return imageItems;
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -85,7 +121,12 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_location) {
+
+        if(id == R.id.nav_home)
+        {
+            Intent myIntent = new Intent(this, MainActivity.class);
+            startActivity(myIntent);
+        } else if (id == R.id.nav_location) {
             Intent myIntent = new Intent(this, MapsActivity.class);
             startActivity(myIntent);
         } else if (id == R.id.nav_camera) {
@@ -93,10 +134,6 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, CameraActivity.class);
             intent.putExtras(bundle);
             startActivity(intent);
-        } else if (id == R.id.nav_gallery) {
-            Intent intent = new Intent(this, GalleryActivity.class);
-            startActivity(intent);
-
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
@@ -111,5 +148,4 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 }

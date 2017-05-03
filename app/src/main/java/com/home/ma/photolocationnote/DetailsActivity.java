@@ -2,12 +2,10 @@ package com.home.ma.photolocationnote;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Log;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,24 +14,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.home.ma.photolocationnote.utility.Utility;
-
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-
-public class MainActivity extends AppCompatActivity
+public class DetailsActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_details);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -45,6 +35,11 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        Bitmap bitmap = getIntent().getParcelableExtra("image");
+
+        ImageView imageView = (ImageView) findViewById(R.id.image);
+        imageView.setImageBitmap(bitmap);
     }
 
     @Override
@@ -85,10 +80,15 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_location) {
+        if(id == R.id.nav_home)
+        {
+            Intent myIntent = new Intent(this, MainActivity.class);
+            startActivity(myIntent);
+        } else if (id == R.id.nav_location) {
             Intent myIntent = new Intent(this, MapsActivity.class);
             startActivity(myIntent);
-        } else if (id == R.id.nav_camera) {
+        }
+        else if (id == R.id.nav_camera) {
             Bundle bundle = new Bundle();
             Intent intent = new Intent(this, CameraActivity.class);
             intent.putExtras(bundle);
@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_gallery) {
             Intent intent = new Intent(this, GalleryActivity.class);
             startActivity(intent);
-
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
@@ -111,5 +110,4 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 }

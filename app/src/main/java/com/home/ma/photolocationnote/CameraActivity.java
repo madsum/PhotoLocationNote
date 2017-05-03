@@ -7,8 +7,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -16,13 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-/*
-import com.masum.database.NoteTable;
-import com.masum.locationlibrary.LocationApplication;
-import com.masum.utils.Utility;
-*/
-
 import com.home.ma.photolocationnote.utility.Utility;
 
 import java.io.File;
@@ -30,29 +23,25 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 public class CameraActivity extends AppCompatActivity {
 
     // Activity request codes
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
-    private static final int CAMERA_CAPTURE_VIDEO_REQUEST_CODE = 200;
     public static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int MEDIA_TYPE_VIDEO = 2;
     public static final String ACTIVITY_LAUNCH = "launch";
-    private File capturedImage = null;
+    //private File capturedImage = null;
     private boolean activity_launch = true;
-    // directory name to store captured images and videos
-    private static final String IMAGE_DIRECTORY_NAME = "LocationNote";
-    private Uri fileUri; // file url to store image
+    // file url to store image
+    private Uri fileUri;
+    // final bitmap after address and time stamped.
+    private Bitmap processedBitmap;
     private ImageView imageView;
-    // private ImageView imgPreview;
-    // private VideoView videoPreview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_camera);
         // Checking camera availability
         if (!isDeviceSupportCamera()) {
             Utility.displayWarning(this, "No camera", "Sorry! Your device doesn't support camera");
@@ -65,11 +54,10 @@ public class CameraActivity extends AppCompatActivity {
         }
         if (activity_launch) {
             Bundle extras = getIntent().getExtras();
-           // int mediaType = extras.getInt(NoteTable.COLUMN_IMAGE);
-            //initializeView(mediaType);
+            // int mediaType = extras.getInt(NoteTable.COLUMN_IMAGE);
+            initializeView(MEDIA_TYPE_IMAGE);
         }
-        //imageView = (ImageView) findViewById(R.id.imageView);
-        initializeView(MEDIA_TYPE_IMAGE);
+        imageView = (ImageView) findViewById(R.id.imageView);
     }
 
     public void initializeView(int mediaType) {
@@ -77,9 +65,6 @@ public class CameraActivity extends AppCompatActivity {
         if (mediaType == MEDIA_TYPE_IMAGE) {
             // capture picture
             captureImage();
-        } else if (mediaType == MEDIA_TYPE_VIDEO) {
-            // record video
-            //recordVideo();
         } else {
             Utility.displayWarning(this, "Unknown media type", "Please try again");
         }
@@ -148,204 +133,81 @@ public class CameraActivity extends AppCompatActivity {
                         "Sorry! Failed to capture image", Toast.LENGTH_SHORT)
                         .show();
             }
-        } else if (requestCode == CAMERA_CAPTURE_VIDEO_REQUEST_CODE) {
-            if (resultCode == 0) {
-                // video successfully recorded
-                // preview the recorded video
-                //previewVideo();
-            } else if (resultCode == RESULT_CANCELED) {
-                // user cancelled recording
-                Toast.makeText(getApplicationContext(),
-                        "User cancelled video recording", Toast.LENGTH_SHORT)
-                        .show();
-            } else {
-                // failed to record video
-                Toast.makeText(getApplicationContext(),
-                        "Sorry! Failed to record video", Toast.LENGTH_SHORT)
-                        .show();
-            }
         }
     }
 
     private void saveImage() {
         // bitmap factory
         BitmapFactory.Options options = new BitmapFactory.Options();
-        // downsizing image as it throws OutOfMemory Exception for larger images
+        // downsizing image as it throws OutOfMeextrasmory Exception for larger images
         options.inSampleSize = 8;
         Bitmap srcBitmap = BitmapFactory.decodeFile(fileUri.getPath(), options);
-        // address and time text to stamped
+        // time text to stamped
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         String currentTime = sdf.format(Calendar.getInstance().getTime());
-
+        // address and time to be stamped
         imageTextStamped(srcBitmap, Globals.getInstance().getTotalAddress(), currentTime);
-       // imageView.setImageBitmap(bitmap);
-
-        /*if (bitmap != null) {
-            startNoteEditActivity();
-        } else {
-            Toast.makeText(this, "Failed to save image!", Toast.LENGTH_LONG).show();
-        }*/
-       // Utility.deleteFile(fileUri.getPath());
     }
-/*
 
-    void startNoteEditActivity() {
-        LocationApplication locationApplication = (LocationApplication) getApplication();
-        Bundle bundle = new Bundle();
-        bundle.putDouble(NoteTable.COLUMN_LATITUDE, locationApplication.mLocationInfo.lastLat);
-        bundle.putDouble(NoteTable.COLUMN_LONGITUDE, locationApplication.mLocationInfo.lastLong);
-        if (locationApplication.mTotalAddress == null) {
-            locationApplication.mTotalAddress = "debug address";
-        }
-        bundle.putString(NoteTable.COLUMN_ADDRESS, locationApplication.mTotalAddress);
-        bundle.putString(NoteTable.COLUMN_IMAGE, capturedImage.getAbsolutePath());
-        Intent intent = new Intent(this, NoteEditor.class);
-        intent.putExtras(bundle);
-        startActivity(intent);
-        finish();
-    }
-*/
-
-    void imageTextStamped(Bitmap srcBitmap, String address, String currentTime){
-        Bitmap destBitmap = Bitmap.createBitmap(srcBitmap.getWidth(), srcBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas cs = new Canvas(destBitmap);
+    void imageTextStamped(Bitmap srcBitmap, String address, String currentTime) {
+        processedBitmap = Bitmap.createBitmap(srcBitmap.getWidth(), srcBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas cs = new Canvas(processedBitmap);
         Paint tPaint = new Paint();
         tPaint.setTextSize(20);
         tPaint.setColor(Color.WHITE);
         tPaint.setStyle(Paint.Style.FILL);
         cs.drawBitmap(srcBitmap, 0f, 0f, null);
-
         float height = tPaint.measureText("yX");
-        cs.drawText(address, 0, destBitmap.getHeight() - height, tPaint);
-        cs.drawText(currentTime, 0, destBitmap.getHeight(), tPaint);
+        cs.drawText(address, 0, processedBitmap.getHeight() - height, tPaint);
+        cs.drawText(currentTime, 0, processedBitmap.getHeight(), tPaint);
         try {
-            capturedImage = getOutputMediaFile(MEDIA_TYPE_IMAGE, " ");
-            destBitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(capturedImage));
+            processedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(new File(fileUri.getPath())));
         } catch (FileNotFoundException e) {
             Log.e(Globals.TAG, "ex: " + e.getMessage());
             e.printStackTrace();
         }
-
+        // picture will be visible in phone's gallery
+        populatePhotoInGallery(fileUri.getPath());
+        imageView.setImageBitmap(processedBitmap);
     }
 
-    /**
-     * ------------ Helper Methods ----------------------
-     */
-
-	/*
-     * Creating file uri to store image/video
-	 */
-    public Uri getOutputMediaFileUri(int type) {
-
-        return Uri.fromFile(getOutputMediaFile(type, ""));
-    }
-
-    /*
-     * returning image / video
-     */
-    private File getOutputMediaFile(int type, String fileNamePad) {
-
-        String path = Environment.getExternalStorageDirectory().toString();
-        File mediaStorageDir = new File(path, "/media/"+getString(R.string.app_name)+"/");
-        if (!mediaStorageDir.isDirectory()) {
-            mediaStorageDir.mkdirs();
+    private void populatePhotoInGallery(String path) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            final Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            final Uri contentUri = Uri.fromFile(new File(path));
+            scanIntent.setData(contentUri);
+            sendBroadcast(scanIntent);
+        } else {
+            final Intent intent = new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory()));
+            sendBroadcast(intent);
         }
+    }
 
-        // Create a media file name
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        String currentTime = sdf.format(Calendar.getInstance().getTime());
-        /*String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmm",
-                Locale.getDefault()).format(new Date()) + fileNamePad;*/
+    public Uri getOutputMediaFileUri(int type) {
+        return Uri.fromFile(getOutputMediaFile(type));
+    }
+
+    private File getOutputMediaFile(int type) {
+
+
+        if (!Globals.getMediaStorageDir().isDirectory()) {
+            Globals.getMediaStorageDir().mkdirs();
+        }
         File mediaFile;
 
         if (type == MEDIA_TYPE_IMAGE) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "LocationImage_" + currentTime + ".jpg");
-
-        } else if (type == MEDIA_TYPE_VIDEO) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "LocationNoteVideo_" + currentTime + ".mp4");
+            mediaFile = new File(Globals.getMediaStorageDir().getPath() + File.separator
+                    + Globals.getTotalAddress() + ".jpg");
+            String fileName;
+            int counter = 1;
+            while (mediaFile.exists()) {
+                fileName = Globals.getTotalAddress() + "(" + counter + ")" + ".jpg";
+                counter++;
+                mediaFile = new File(Globals.getMediaStorageDir().getPath() + File.separator + fileName);
+            }
         } else {
             return null;
         }
-
-       // File file = new File(dir, filename + ".jpg");
-        String imagePath =  mediaFile.getAbsolutePath();
-        //scan the image so show up in album
-        MediaScannerConnection.scanFile(this,
-                new String[] { imagePath }, null,
-                new MediaScannerConnection.OnScanCompletedListener() {
-                    public void onScanCompleted(String path, Uri uri) {
-                        Log.d(Globals.TAG, "scanned : " + path);
-                        /*if(Config.LOG_DEBUG_ENABLED) {
-                            Log.d(Config.LOGTAG, "scanned : " + path);
-                        }*/
-                    }
-                });
-
-
-
-
-
-
-
-        // External sdcard location
-       /* File mediaStorageDir = new File(
-                Environment
-                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                IMAGE_DIRECTORY_NAME);
-
-        // Create the storage directory if it does not exist
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                Utility.displayWarning(this, "Directory error", "Directory creation filed!");
-                Log.d(Globals.TAG, "Oops! Failed create "
-                        + IMAGE_DIRECTORY_NAME + " directory");
-                return null;
-            }
-        }*/
-
         return mediaFile;
     }
-
-
-    /*
-     * Recording video
-     */
-  /*
-    private void recordVideo() {
-        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-
-        fileUri = getOutputMediaFileUri(MEDIA_TYPE_VIDEO);
-
-        // set video quality
-        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri); // set the image file
-        // name
-
-        // start the video capture Intent
-        startActivityForResult(intent, CAMERA_CAPTURE_VIDEO_REQUEST_CODE);
-    }
-*/
-
-    /*
-     * Previewing recorded video
-     */
-  /*
-    private void previewVideo() {
-        try {
-            // hide image preview
-            imgPreview.setVisibility(View.GONE);
-
-            videoPreview.setVisibility(View.VISIBLE);
-            videoPreview.setVideoPath(fileUri.getPath());
-            // start playing
-            videoPreview.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-*/
-
 }

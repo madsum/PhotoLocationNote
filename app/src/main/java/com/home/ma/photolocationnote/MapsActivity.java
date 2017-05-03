@@ -69,6 +69,7 @@ public class MapsActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
         // All toolbar and drawer code.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -280,8 +281,8 @@ public class MapsActivity extends AppCompatActivity
                     strReturnedAddress.append(returnedAddress.getAddressLine(i)).append(" ");
                 }
                 sharedData.setStreet(strReturnedAddress.toString());
-                sharedData.setmCountry(addresses.get(0).getCountryName());
-                sharedData.setTotalAddress(strReturnedAddress.toString()+" "+addresses.get(0).getCountryName());
+                sharedData.setCountry(addresses.get(0).getCountryCode());
+                sharedData.setTotalAddress(strReturnedAddress.toString()+" "+addresses.get(0).getCountryCode());
                 //mStreet = strReturnedAddress.toString();
                 //mCountry = addresses.get(0).getCountryName();
                 //mTotalAddress = strReturnedAddress.toString()+" "+addresses.get(0).getCountryName();
@@ -337,7 +338,7 @@ public class MapsActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.maps_activity, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -365,7 +366,6 @@ public class MapsActivity extends AppCompatActivity
         if(id == R.id.nav_home)
         {
             Intent myIntent = new Intent(MapsActivity.this, MainActivity.class);
-            // myIntent.putExtra("key", value); //Optional parameters
             startActivity(myIntent);
         }
         else if (id == R.id.nav_camera) {
@@ -376,6 +376,8 @@ public class MapsActivity extends AppCompatActivity
             intent.putExtras(bundle);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
+            Intent intent = new Intent(this, GalleryActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_slideshow) {
 

@@ -13,8 +13,8 @@ public class Utility {
 
     public static void displayWarning(Context context, String title, String message){
         AlertDialog alertDialog = new AlertDialog.Builder(context).create();
-        alertDialog.setTitle("Fatal error");
-        alertDialog.setMessage("First enbale network and GPS. Then retry again");
+        alertDialog.setTitle(title);
+        alertDialog.setMessage(message);
         alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
