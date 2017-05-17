@@ -280,8 +280,8 @@ public class MapsActivity extends AppCompatActivity
                 for (int i = 0; i < returnedAddress.getMaxAddressLineIndex(); i++) {
                     strReturnedAddress.append(returnedAddress.getAddressLine(i)).append(" ");
                 }
-                sharedData.setStreet(strReturnedAddress.toString());
-                sharedData.setCountry(addresses.get(0).getCountryCode());
+                //sharedData.setStreet(strReturnedAddress.toString());
+                //sharedData.setCountry(addresses.get(0).getCountryCode());
                 sharedData.setTotalAddress(strReturnedAddress.toString()+" "+addresses.get(0).getCountryCode());
                 //mStreet = strReturnedAddress.toString();
                 //mCountry = addresses.get(0).getCountryName();
@@ -365,8 +365,8 @@ public class MapsActivity extends AppCompatActivity
 
         if(id == R.id.nav_home)
         {
-            Intent myIntent = new Intent(MapsActivity.this, MainActivity.class);
-            startActivity(myIntent);
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
         }
         else if (id == R.id.nav_camera) {
             Bundle bundle = new Bundle();
@@ -379,7 +379,9 @@ public class MapsActivity extends AppCompatActivity
             Intent intent = new Intent(this, GalleryActivity.class);
             startActivity(intent);
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_notepad) {
+            Intent intent = new Intent(this, NoteEditorActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_manage) {
 

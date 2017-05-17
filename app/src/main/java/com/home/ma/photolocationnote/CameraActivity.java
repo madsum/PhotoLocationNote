@@ -142,14 +142,12 @@ public class CameraActivity extends AppCompatActivity {
         // downsizing image as it throws OutOfMeextrasmory Exception for larger images
         options.inSampleSize = 8;
         Bitmap srcBitmap = BitmapFactory.decodeFile(fileUri.getPath(), options);
-        // time text to stamped
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        String currentTime = sdf.format(Calendar.getInstance().getTime());
         // address and time to be stamped
-        imageTextStamped(srcBitmap, Globals.getInstance().getTotalAddress(), currentTime);
+        imageTextStamped(srcBitmap);
     }
 
-    void imageTextStamped(Bitmap srcBitmap, String address, String currentTime) {
+    void imageTextStamped(Bitmap srcBitmap) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         processedBitmap = Bitmap.createBitmap(srcBitmap.getWidth(), srcBitmap.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas cs = new Canvas(processedBitmap);
         Paint tPaint = new Paint();
@@ -158,8 +156,10 @@ public class CameraActivity extends AppCompatActivity {
         tPaint.setStyle(Paint.Style.FILL);
         cs.drawBitmap(srcBitmap, 0f, 0f, null);
         float height = tPaint.measureText("yX");
-        cs.drawText(address, 0, processedBitmap.getHeight() - height, tPaint);
-        cs.drawText(currentTime, 0, processedBitmap.getHeight(), tPaint);
+        // current address to stamped
+        cs.drawText(Globals.getInstance().getTotalAddress(), 0, processedBitmap.getHeight() - height, tPaint);
+        // current time text to stamped
+        cs.drawText(sdf.format(Calendar.getInstance().getTime()), 0, processedBitmap.getHeight(), tPaint);
         try {
             processedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(new File(fileUri.getPath())));
         } catch (FileNotFoundException e) {
@@ -168,7 +168,17 @@ public class CameraActivity extends AppCompatActivity {
         }
         // picture will be visible in phone's gallery
         populatePhotoInGallery(fileUri.getPath());
-        imageView.setImageBitmap(processedBitmap);
+       // imageView.setImageBitmap(processedBitmap);
+        startNoteActivity();
+    }
+
+    private void startNoteActivity(){
+        Bundle bundle = new Bundle();
+        // this start Note editor
+        bundle.putString(Globals.PHOTO_FILE_KEY, fileUri.getPath());
+        Intent intent = new Intent(this, NoteEditorActivity.class);
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 
     private void populatePhotoInGallery(String path) {
@@ -178,7 +188,8 @@ public class CameraActivity extends AppCompatActivity {
             scanIntent.setData(contentUri);
             sendBroadcast(scanIntent);
         } else {
-            final Intent intent = new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory()));
+            final Intent intent = new Intent(Intent.ACTION_MEDIA_MOUNTED,
+                    Uri.parse("file://" + Environment.getExternalStorageDirectory()));
             sendBroadcast(intent);
         }
     }

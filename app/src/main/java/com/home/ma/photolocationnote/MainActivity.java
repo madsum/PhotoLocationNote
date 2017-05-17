@@ -86,8 +86,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_location) {
-            Intent myIntent = new Intent(this, MapsActivity.class);
-            startActivity(myIntent);
+            Intent intent = new Intent(this, MapsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_camera) {
             Bundle bundle = new Bundle();
             Intent intent = new Intent(this, CameraActivity.class);
