@@ -1,6 +1,7 @@
 package com.home.ma.photolocationnote;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.Environment;
 
 import java.io.File;
@@ -50,6 +51,16 @@ public class Globals {
 
     private static String totalAddress = null;
     public static String PHOTO_FILE_KEY = "photoFileKey";
+
+    public static Location getLocation() {
+        return location;
+    }
+
+    public static void setLocation(Location location) {
+        Globals.location = location;
+    }
+
+    private static Location location;
    // private static String street = null;
    // private static String country = null;
     public static final String APPLICATION_NAME = "Photo Location Note";

@@ -72,10 +72,14 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <provider
-            android:name="com.home.ma.photolocationnote.contentProvider.NoteContentProvider"
+            android:name=".contentProvider.NoteContentProvider"
             android:authorities="authorities.photolocationnote.contentprovider"
             android:exported="true" />
 
+        <activity
+            android:name=".NoteListActivity"
+            android:label="@string/title_activity_note_list"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

@@ -96,7 +96,7 @@ public class GalleryActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        //getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -105,12 +105,12 @@ public class GalleryActivity extends AppCompatActivity
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        //int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        /*if (id == R.id.action_settings) {
             return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
     }
@@ -121,22 +121,24 @@ public class GalleryActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-
-        if(id == R.id.nav_home)
-        {
-            Intent myIntent = new Intent(this, MainActivity.class);
-            startActivity(myIntent);
-        } else if (id == R.id.nav_location) {
-            Intent myIntent = new Intent(this, MapsActivity.class);
-            startActivity(myIntent);
+        if(id == R.id.nav_home) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_camera) {
             Bundle bundle = new Bundle();
             Intent intent = new Intent(this, CameraActivity.class);
             intent.putExtras(bundle);
             startActivity(intent);
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_gallery) {
+            Intent intent = new Intent(this, GalleryActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_notepad) {
+            Intent intent = new Intent(this, NoteEditorActivity.class);
+            startActivity(intent);
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_noteList) {
+            Intent intent = new Intent(this, NoteListActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_share) {
 

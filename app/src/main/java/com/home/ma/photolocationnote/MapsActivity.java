@@ -192,7 +192,7 @@ public class MapsActivity extends AppCompatActivity
         LatLng espoo = new LatLng(60.205490, 24.655899);
         mMap.addMarker(new MarkerOptions().position(espoo).title("Marker in Espoo"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(espoo));
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        mMap.setOnMapClickListener( new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 mMap.addMarker(new MarkerOptions().position(latLng).title("On map click"));
@@ -252,6 +252,7 @@ public class MapsActivity extends AppCompatActivity
     public void onLocationChanged(Location location) {
         myLatitude = location.getLatitude();
         myLongitude = location.getLongitude();
+        Globals.setLocation(location);
 
         setCompleteCurrentAddress(location);
         mMap.clear();
@@ -337,23 +338,11 @@ public class MapsActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -383,7 +372,9 @@ public class MapsActivity extends AppCompatActivity
             Intent intent = new Intent(this, NoteEditorActivity.class);
             startActivity(intent);
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_noteList) {
+            Intent intent = new Intent(this, NoteListActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_share) {
 
