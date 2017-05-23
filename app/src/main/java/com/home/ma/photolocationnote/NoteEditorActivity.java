@@ -271,10 +271,14 @@ public class NoteEditorActivity extends AppCompatActivity
             startActivity(new Intent(this, NoteListActivity.class));
             finish();
             return true;
-        } else if (id == R.id.editor_delete) {
+        }
+        else if (id == R.id.editor_delete) {
             if (mNoteTableUid > 0) {
                 Uri uri = Uri.parse(NoteContentProvider.CONTENT_URI + "/" + mNoteTableUid);
                 getContentResolver().delete(uri, null, null);
+                if (mPhotoFileName != null) {
+                    Utility.deleteFile(mPhotoFileName);
+                }
                 setResult(RESULT_OK);
                 startActivity(new Intent(this, NoteListActivity.class));
                 finish();
@@ -301,7 +305,12 @@ public class NoteEditorActivity extends AppCompatActivity
         if(id == R.id.nav_home) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_camera) {
+        }
+        else if(id == R.id.nav_location) {
+            Intent intent = new Intent(this, MapsActivity.class);
+            startActivity(intent);
+        }
+        else if (id == R.id.nav_camera) {
             Bundle bundle = new Bundle();
             Intent intent = new Intent(this, CameraActivity.class);
             intent.putExtras(bundle);

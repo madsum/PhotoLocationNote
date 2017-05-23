@@ -124,6 +124,9 @@ public class GalleryActivity extends AppCompatActivity
         if(id == R.id.nav_home) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
+        } else if(id == R.id.nav_location) {
+            Intent intent = new Intent(this, MapsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_camera) {
             Bundle bundle = new Bundle();
             Intent intent = new Intent(this, CameraActivity.class);

@@ -26,6 +26,7 @@ import android.widget.SimpleCursorAdapter;
 import com.home.ma.photolocationnote.contentProvider.NoteContentProvider;
 import com.home.ma.photolocationnote.database.NoteDatabaseHelper;
 import com.home.ma.photolocationnote.database.NoteTable;
+import com.home.ma.photolocationnote.utility.Utility;
 
 import static java.security.AccessController.getContext;
 
@@ -139,11 +140,40 @@ public class NoteListActivity extends AppCompatActivity
                 public void onClick(DialogInterface dialog, int which) {
                     NoteDatabaseHelper databaseHelper = new NoteDatabaseHelper(NoteListActivity.this);
                     SQLiteDatabase db = databaseHelper.getWritableDatabase();
-                    db.execSQL("delete from "+ NoteTable.TABLE_NOTE);
+                    try {
+                        Cursor  cursor = db.rawQuery("select * from "+NoteTable.TABLE_NOTE, null);
+                        try {
+                            // looping through all rows and delete all file from filesystem
+                            if (cursor.moveToFirst()) {
+                                do {
+                                    String imagePath =cursor.getString(cursor.getColumnIndex(NoteTable.COLUMN_IMAGE));
+                                 Utility.deleteFile(imagePath);
+                                } while (cursor.moveToNext());
+                            }
+
+                        } finally {
+                            try {
+                                cursor.close();
+                                db.execSQL("delete from "+ NoteTable.TABLE_NOTE);
+                            }
+                            catch (Exception ignore)
+                            {
+                                Log.i(Globals.TAG, "exception");
+                            }
+                        }
+                    } finally {
+                        try {
+                            db.close();
+                        } catch (Exception ignore)
+                        {
+                            Log.i(Globals.TAG, "exception");
+                        }
+                    }
+                    //reload the activity
                     finish();
-                } });
-
-
+                    startActivity(getIntent());
+                    }
+                });
             adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     return;
@@ -163,7 +193,12 @@ public class NoteListActivity extends AppCompatActivity
         if(id == R.id.nav_home) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_camera) {
+        }
+        else if(id == R.id.nav_location) {
+            Intent intent = new Intent(this, MapsActivity.class);
+            startActivity(intent);
+        }
+        else if (id == R.id.nav_camera) {
             Bundle bundle = new Bundle();
             Intent intent = new Intent(this, CameraActivity.class);
             intent.putExtras(bundle);
