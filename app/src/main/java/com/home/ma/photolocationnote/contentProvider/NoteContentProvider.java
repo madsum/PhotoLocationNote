@@ -175,6 +175,11 @@ public class NoteContentProvider extends ContentProvider {
         return rowsUpdated;
     }
 
+    public void deleteAll(){
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        db.execSQL("delete from "+ NoteTable.TABLE_NOTE);
+    }
+
     private void checkColumns(String[] projection) {
         String[] available = { NoteTable.COLUMN_ID,
                 NoteTable.COLUMN_TITLE, NoteTable.COLUMN_DESCRIPTION,

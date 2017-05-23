@@ -1,7 +1,9 @@
 package com.home.ma.photolocationnote;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -9,6 +11,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -21,7 +24,10 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.home.ma.photolocationnote.contentProvider.NoteContentProvider;
+import com.home.ma.photolocationnote.database.NoteDatabaseHelper;
 import com.home.ma.photolocationnote.database.NoteTable;
+
+import static java.security.AccessController.getContext;
 
 public class NoteListActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
@@ -50,6 +56,7 @@ public class NoteListActivity extends AppCompatActivity
         mListView.setDividerHeight(1);
         registerForContextMenu(mListView);
         mListView.setOnItemClickListener(this);
+
         fillData();
     }
 
@@ -123,6 +130,25 @@ public class NoteListActivity extends AppCompatActivity
         if (id == R.id.list_sync) {
             return true;
         }else if( id == R.id.delete_all_list){
+
+            AlertDialog.Builder adb = new AlertDialog.Builder(this);
+            adb.setTitle("Confirmation");
+            adb.setMessage("Do you really want to delete all notes?");
+            adb.setIcon(R.mipmap.ic_warning_black_24dp);
+            adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    NoteDatabaseHelper databaseHelper = new NoteDatabaseHelper(NoteListActivity.this);
+                    SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                    db.execSQL("delete from "+ NoteTable.TABLE_NOTE);
+                    finish();
+                } });
+
+
+            adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    return;
+                } });
+            adb.show();
             return true;
         }
         return super.onOptionsItemSelected(item);
