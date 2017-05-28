@@ -1,5 +1,8 @@
 package com.home.ma.photolocationnote;
 
+import android.*;
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -12,6 +15,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -21,13 +26,15 @@ import com.home.ma.photolocationnote.utility.Utility;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.security.Permission;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class CameraActivity extends AppCompatActivity {
+public class CameraActivity extends Activity {
 
     // Activity request codes
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
+    private static final int REQUEST_EXTERNAL_PERMISSION_RESULT = 200;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final String ACTIVITY_LAUNCH = "launch";
     //private File capturedImage = null;
@@ -64,7 +71,8 @@ public class CameraActivity extends AppCompatActivity {
 
         if (mediaType == MEDIA_TYPE_IMAGE) {
             // capture picture
-            captureImage();
+            //captureImage();
+            callCameraApp();
         } else {
             Utility.displayWarning(this, "Unknown media type", "Please try again");
         }
@@ -95,10 +103,38 @@ public class CameraActivity extends AppCompatActivity {
         startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
     }
 
+    private void callCameraApp(){
+        if(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+            captureImage();
+        }else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if(shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                   Toast.makeText(this, "External storage permission is required to save photo", Toast.LENGTH_LONG).show();
+                }
+                requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_EXTERNAL_PERMISSION_RESULT);
+            }else {
+                captureImage();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if(requestCode == REQUEST_EXTERNAL_PERMISSION_RESULT){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                captureImage();
+            }else {
+                Toast.makeText(this, "External storage permission not granted, so photo can't be saved", Toast.LENGTH_LONG ).show();
+            }
+        }else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
     /*
-     * Here we store the file url as it will be null after returning from camera
-     * app
-     */
+         * Here we store the file url as it will be null after returning from camera
+         * app
+         */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

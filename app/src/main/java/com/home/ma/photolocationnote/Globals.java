@@ -49,7 +49,7 @@ public class Globals {
 //        Globals.country = mCountry;
 //    }
 
-    private static String totalAddress = null;
+    private static String totalAddress = "No address";
     public static String PHOTO_FILE_KEY = "photoFileKey";
 
     public static Location getLocation() {

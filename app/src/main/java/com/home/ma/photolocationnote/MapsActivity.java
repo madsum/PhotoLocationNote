@@ -1,13 +1,16 @@
 package com.home.ma.photolocationnote;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -33,23 +36,41 @@ import android.widget.ZoomControls;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.home.ma.photolocationnote.http.HttpHandler;
+import com.home.ma.photolocationnote.http.HttpListener;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.List;
-import java.util.Locale;
 
-public class MapsActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener{
+public class MapsActivity extends AppCompatActivity implements
+        NavigationView.OnNavigationItemSelectedListener,
+        OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener,
+        HttpListener,
+        ResultCallback<LocationSettingsResult>
+{
 
     private GoogleMap mMap;
     private final static int MY_PERMISSION_FINE_LOCATION = 101;
@@ -59,12 +80,34 @@ public class MapsActivity extends AppCompatActivity
     Button clear;
     Double myLatitude = null;
     Double myLongitude = null;
-    private GoogleApiClient googleApiClient;
-    private LocationRequest locationRequest;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
     EditText etLocationEntry;
-    Globals sharedData = Globals.getInstance();
+    Globals globals = Globals.getInstance();
 
-    protected static final String TAG = "MapsActvity";
+    private Handler handler = null;
+    private HttpHandler httphandler = null;
+
+
+    protected LocationSettingsRequest mLocationSettingsRequest;
+    /**
+     * Constant used in the location settings dialog.
+     */
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
+
+    /**
+     * The desired interval for location updates. Inexact. Updates may be more or less frequent.
+     */
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+
+    /**
+     * The fastest rate for active location updates. Exact. Updates will never be more frequent
+     * than this value.
+     */
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
+            UPDATE_INTERVAL_IN_MILLISECONDS / 2;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,17 +128,15 @@ public class MapsActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        googleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(AppIndex.API).build();
+        // build GoogleApiClient
+        buildGoogleApiClient();
+        // create LocationReest
+        createLocationRequest();
+        // build Location Settings Request
+        buildLocationSettingsRequest();
+        // check locaiton setting if gps off ask to turn on
+        checkLocationSettings();
 
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(15 * 1000);
-        locationRequest.setFastestInterval(5 * 1000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setSmallestDisplacement(20);
         //set to balanced power accuracy on real device
         zoom = (ZoomControls) findViewById(R.id.zcZoom);
         zoom.setOnZoomOutClickListener(new View.OnClickListener() {
@@ -144,7 +185,7 @@ public class MapsActivity extends AppCompatActivity
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        if(addressList.size() == 0){
+                        if (addressList.size() == 0) {
                             Toast.makeText(getApplicationContext(), "Location not found", Toast.LENGTH_LONG).show();
                             return true;
                         }
@@ -183,6 +224,55 @@ public class MapsActivity extends AppCompatActivity
             }
         });
 
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        Log.i(globals.TAG, "Building GoogleApiClient");
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    protected void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(mLocationRequest);
+        mLocationSettingsRequest = builder.build();
+    }
+
+    protected void checkLocationSettings() {
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(
+                        mGoogleApiClient,
+                        mLocationSettingsRequest
+                );
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                result.setResultCallback(this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            // Check for the integer request code originally supplied to startResolutionForResult().
+            case REQUEST_CHECK_SETTINGS:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        Log.i(globals.TAG, "User agreed to make required location settings changes.");
+                        requestLocationUpdates();
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        Log.i(globals.TAG, "User chose not to make required location settings changes.");
+                        break;
+                }
+                break;
+        }
     }
 
     @Override
@@ -233,19 +323,19 @@ public class MapsActivity extends AppCompatActivity
 
     private void requestLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
 
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.i(TAG, "Connection Suspended");
+        Log.i(globals.TAG, "Connection Suspended");
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i(TAG, "Connection Failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
+        Log.i(globals.TAG, "Connection Failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
     }
 
     @Override
@@ -253,68 +343,135 @@ public class MapsActivity extends AppCompatActivity
         myLatitude = location.getLatitude();
         myLongitude = location.getLongitude();
         Globals.setLocation(location);
+        // as soon as we get location, I tired to find local address
+        startDownLoadingAddressJSON();
 
-        setCompleteCurrentAddress(location);
         mMap.clear();
-
         MarkerOptions mp = new MarkerOptions();
-
         mp.position(new LatLng(location.getLatitude(), location.getLongitude()));
-
         mp.title("my current location");
-
         mMap.addMarker(mp);
-
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(location.getLatitude(), location.getLongitude()), 16));
-
     }
 
-    public void setCompleteCurrentAddress(Location location) {
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-            if (addresses != null) {
-                Address returnedAddress = addresses.get(0);
-                StringBuilder strReturnedAddress = new StringBuilder("");
+    private void startDownLoadingAddressJSON() {
+        handler = new Handler();
+        JSONDownloaderThread jSONDownloaderThread = new JSONDownloaderThread(myLatitude, myLongitude);
+        new Thread(jSONDownloaderThread).start();
+    }
 
-                for (int i = 0; i < returnedAddress.getMaxAddressLineIndex(); i++) {
-                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append(" ");
+    @Override
+    public void onResult(LocationSettingsResult locationSettingsResult) {
+        final Status status = locationSettingsResult.getStatus();
+        switch (status.getStatusCode()) {
+            case LocationSettingsStatusCodes.SUCCESS:
+                Log.i(globals.TAG, "All location settings are satisfied.");
+                requestLocationUpdates();
+                break;
+            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                Log.i(globals.TAG, "Location settings are not satisfied. Show the user a dialog to" +
+                        "upgrade location settings ");
+
+                try {
+                    // Show the dialog by calling startResolutionForResult(),
+                    // and check the result in onActivityResult().
+                    status.startResolutionForResult(MapsActivity.this, REQUEST_CHECK_SETTINGS);
+                } catch (IntentSender.SendIntentException e) {
+                    Log.i(globals.TAG, "PendingIntent unable to execute request.");
                 }
-                //sharedData.setStreet(strReturnedAddress.toString());
-                //sharedData.setCountry(addresses.get(0).getCountryCode());
-                sharedData.setTotalAddress(strReturnedAddress.toString()+" "+addresses.get(0).getCountryCode());
-                //mStreet = strReturnedAddress.toString();
-                //mCountry = addresses.get(0).getCountryName();
-                //mTotalAddress = strReturnedAddress.toString()+" "+addresses.get(0).getCountryName();
-                Log.w(MapsActivity.TAG, "" + strReturnedAddress.toString());
-            } else {
-                Log.w(MapsActivity.TAG, "No Address returned!");
-            }
-        } catch (Exception e) {
-            Log.w(MapsActivity.TAG, "Canont get Address!");
+                break;
+            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                Log.i(globals.TAG, "Location settings are inadequate, and cannot be fixed here. Dialog " +
+                        "not created.");
+                break;
+        }
+    }
+    class JSONDownloaderThread implements Runnable {
+
+        private volatile double lat;
+        private volatile double lon;
+
+        public JSONDownloaderThread(double lat, double lon){
+            this.lat = lat;
+            this.lon = lon;
+        }
+
+        public void run(){
+            String addressURL = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+Double.toString(lat)+","+Double.toString(lon)+"&sensor=true";
+            Log.d(Globals.TAG, "Request to = " + addressURL);
+            httphandler = new HttpHandler(addressURL);
+            httphandler.addHttpLisner(MapsActivity.this);
+            httphandler.sendRequest();
         }
     }
 
+    @Override
+    public void notifyHTTPResponse(final HttpHandler http) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                //Set some default values that we show if there are problems
+                String jsonUIStatus = "Error ";
+                String foundAddress = "No address";
+                if (http.getResCode() == HttpURLConnection.HTTP_OK
+                        || http.getResCode() == HttpURLConnection.HTTP_ACCEPTED) {
+                    String resp = http.getResponse();
+                    Log.d(globals.TAG, "resp =  " + resp);
+                    try {
+                        //Make a json object from the response
+                        JSONObject jsonObject = new JSONObject(resp);
+                        String respstatus = jsonObject.getString("status");
+                        //Check if the status was OK
+                        if((respstatus.compareTo("OK") == 0) || (respstatus.compareTo("ok") == 0)){
+                            Log.i(globals.TAG, "respstatus =  " + respstatus);
+                            jsonUIStatus = "Status: " + respstatus;
+                        }
+                        //Make a JSON array from the object (that contains array)
+                        JSONArray arr  = jsonObject.getJSONArray("results");
+                        Log.i(Globals.TAG, "arr length =  " + arr.length());
+                        for(int i=0;i<arr.length();i++)
+                        {
+                            JSONObject json_data = arr.getJSONObject(i);
+                            boolean addresskey = json_data.has("formatted_address");
+                            if(addresskey == true) {
+                                String address = json_data.getString("formatted_address");
+                                //Want to show only first address, we may not need loop
+                                if(i == 0) {
+                                    foundAddress = address;
+                                }
+                                Log.i(globals.TAG, "address =  " + address);
+                            }
+                        }
+                    } catch (NullPointerException ex) {
+                        Log.i(globals.TAG, ex.getMessage());
+                    } catch (JSONException e) {
+                        Log.i(globals.TAG, e.getMessage());
+                    }
+                }
+                globals.setTotalAddress(foundAddress);
+            }
+        });
+    }
 
     @Override
     protected void onStart() {
         super.onStart();
-        googleApiClient.connect();
+        mGoogleApiClient.connect();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (googleApiClient.isConnected()) {
+        if (mGoogleApiClient.isConnected()) {
             requestLocationUpdates();
         }
     }
@@ -322,7 +479,7 @@ public class MapsActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-        googleApiClient.disconnect();
+        mGoogleApiClient.disconnect();
     }
 
 
