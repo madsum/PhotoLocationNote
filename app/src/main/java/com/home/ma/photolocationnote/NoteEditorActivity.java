@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -31,6 +32,7 @@ import com.home.ma.photolocationnote.contentProvider.NoteContentProvider;
 import com.home.ma.photolocationnote.database.NoteTable;
 import com.home.ma.photolocationnote.utility.Utility;
 
+import java.io.File;
 import java.util.Calendar;
 
 public class NoteEditorActivity extends AppCompatActivity
@@ -285,6 +287,7 @@ public class NoteEditorActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.editor_cancel) {
             // Just go beck to the previous activity
+            startActivity(new Intent(this, NoteListActivity.class));
             finish();
             return true;
         }
@@ -312,8 +315,13 @@ public class NoteEditorActivity extends AppCompatActivity
             intent.putExtras(bundle);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-            Intent intent = new Intent(this, GalleryActivity.class);
+            File sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            File f = new File(sdDir, Globals.APPLICATION_NAME);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    f.getAbsolutePath()));
+            intent.setType("image/*");
             startActivity(intent);
+
 
         } else if (id == R.id.nav_notepad) {
             Intent intent = new Intent(this, NoteEditorActivity.class);

@@ -2,18 +2,25 @@ package com.home.ma.photolocationnote;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -33,7 +40,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ZoomControls;
 
-import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -58,6 +64,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
@@ -69,21 +76,20 @@ public class MapsActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
         HttpListener,
-        ResultCallback<LocationSettingsResult>
-{
+        ResultCallback<LocationSettingsResult> {
 
     private GoogleMap mMap;
     private final static int MY_PERMISSION_FINE_LOCATION = 101;
-    ZoomControls zoom;
-    Button markBt;
-    Button satView;
-    Button clear;
-    Double myLatitude = null;
-    Double myLongitude = null;
+    private ZoomControls zoom;
+    private Button markBt;
+    private Button satView;
+    private Button clear;
+    private Double myLatitude = null;
+    private Double myLongitude = null;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    EditText etLocationEntry;
-    Globals globals = Globals.getInstance();
+    private EditText etLocationEntry;
+    private Globals globals = Globals.getInstance();
 
     private Handler handler = null;
     private HttpHandler httphandler = null;
@@ -128,6 +134,9 @@ public class MapsActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        // check is it connected to wifi or mobile data
+        isConnected(this);
+
         // build GoogleApiClient
         buildGoogleApiClient();
         // create LocationReest
@@ -136,8 +145,45 @@ public class MapsActivity extends AppCompatActivity implements
         buildLocationSettingsRequest();
         // check locaiton setting if gps off ask to turn on
         checkLocationSettings();
+        // initialise map UK
+        mapUIInitialise();
+    }
 
-        //set to balanced power accuracy on real device
+    public  boolean isConnected(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo wifiInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo mobileInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+        if ((wifiInfo != null && wifiInfo.isConnected()) || (mobileInfo != null && mobileInfo.isConnected())) {
+            return true;
+        } else {
+            showDataSettingDialog();
+            return false;
+        }
+    }
+
+    private  void showDataSettingDialog()
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Connect to internet")
+                .setCancelable(false)
+                .setPositiveButton("WIFI enable", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                    }
+                })
+                .setNegativeButton("Mobile data enable", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        startActivity(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS));
+                        //finish();
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+
+    private void mapUIInitialise(){
         zoom = (ZoomControls) findViewById(R.id.zcZoom);
         zoom.setOnZoomOutClickListener(new View.OnClickListener() {
             @Override
@@ -154,7 +200,7 @@ public class MapsActivity extends AppCompatActivity implements
             }
         });
 
-        markBt = (Button) findViewById(R.id.btMark);
+        /*markBt = (Button) findViewById(R.id.btMark);
         markBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -162,7 +208,7 @@ public class MapsActivity extends AppCompatActivity implements
                 mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
             }
         });
-
+*/
         etLocationEntry = (EditText) findViewById(R.id.etLocationEntry);
         // serach icon in EditText
         etLocationEntry.setHint("\uD83D\uDD0D Search");
@@ -223,7 +269,6 @@ public class MapsActivity extends AppCompatActivity implements
                 mMap.clear();
             }
         });
-
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -269,6 +314,7 @@ public class MapsActivity extends AppCompatActivity implements
                         break;
                     case Activity.RESULT_CANCELED:
                         Log.i(globals.TAG, "User chose not to make required location settings changes.");
+                        Toast.makeText(this, "Current address won't be located", Toast.LENGTH_LONG).show();
                         break;
                 }
                 break;
@@ -522,9 +568,12 @@ public class MapsActivity extends AppCompatActivity implements
             intent.putExtras(bundle);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-            Intent intent = new Intent(this, GalleryActivity.class);
+            File sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            File f = new File(sdDir, Globals.APPLICATION_NAME);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    f.getAbsolutePath()));
+            intent.setType("image/*");
             startActivity(intent);
-
         } else if (id == R.id.nav_notepad) {
             Intent intent = new Intent(this, NoteEditorActivity.class);
             startActivity(intent);

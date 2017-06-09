@@ -9,10 +9,12 @@
     tools:showIn="@layout/activity_maps">
 
     <LinearLayout
-        android:id="@+id/ll1"
+        android:id="@+id/locationEntryLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"
         android:weightSum="5">
 
         <EditText
@@ -32,23 +34,23 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/ll1"
+        android:layout_below="@+id/locationEntryLayout"
         tools:context="com.home.ma.photolocationnote.MapsActivity" />
 
-    <Button
+    <!--<Button
         android:id="@+id/btMark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:text="Mark" />
+        android:text="Mark" />-->
 
     <Button
         android:id="@+id/btSatellite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/btMark"
+        android:layout_alignParentRight="true"
         android:text="Sat" />
 
     <Button
@@ -63,7 +65,7 @@
         android:id="@+id/zcZoom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/btMark"
+        android:layout_above="@+id/btSatellite"
         android:layout_alignParentRight="true" />
 
 </RelativeLayout>

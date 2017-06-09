@@ -1,13 +1,13 @@
 <resources>
-    <string name="app_name">Photo Location Note</string>
+    <string name="app_name">Home</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
-    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_activity_maps">Current location</string>
     <string name="title_activity_gallery">GalleryActivity</string>
     <string name="title_activity_details">DetailsActivity</string>
     <string name="title_activity_note_editor">Editor</string>
-    <string name="title_activity_note_list">NoteListActivity</string>
+    <string name="title_activity_note_list">Note List</string>
 </resources>

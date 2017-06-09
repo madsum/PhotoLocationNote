@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="50dp"
+    android:paddingTop="65dp"
     tools:context="com.home.ma.photolocationnote.NoteEditorActivity">
 
 

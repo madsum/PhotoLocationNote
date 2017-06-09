@@ -133,8 +133,7 @@ public class GalleryActivity extends AppCompatActivity
             intent.putExtras(bundle);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-            Intent intent = new Intent(this, GalleryActivity.class);
-            startActivity(intent);
+            return true;
         } else if (id == R.id.nav_notepad) {
             Intent intent = new Intent(this, NoteEditorActivity.class);
             startActivity(intent);

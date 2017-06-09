@@ -94,8 +94,13 @@ public class MainActivity extends AppCompatActivity
             intent.putExtras(bundle);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-            Intent intent = new Intent(this, GalleryActivity.class);
+            File sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            File f = new File(sdDir, Globals.APPLICATION_NAME);
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(
+                    f.getAbsolutePath()));
+            intent.setType("image/*");
             startActivity(intent);
+
 
         } else if (id == R.id.nav_slideshow) {
 
