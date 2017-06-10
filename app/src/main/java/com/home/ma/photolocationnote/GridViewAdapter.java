@@ -11,9 +11,6 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
-/**
- * Created by ma on 27/04/2017.
- */
 
 public class GridViewAdapter extends ArrayAdapter<Bitmap> {
 

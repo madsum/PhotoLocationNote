@@ -121,7 +121,7 @@ public class NoteEditorActivity extends AppCompatActivity
                     mTvImageName.setText("Photo");
                     mTvImageName.setVisibility(View.VISIBLE);
                 }
-                // we should set current date
+                // I should set current date
                 Calendar c = Calendar.getInstance();
                 int day = c.get(Calendar.DATE);
                 int month = c.get(Calendar.MONTH);
@@ -170,9 +170,7 @@ public class NoteEditorActivity extends AppCompatActivity
                 //mImagePath = imagePath;
                 mTvImageName.setText("Photo");
                 mTvImageName.setVisibility(View.VISIBLE);
-            } //else {
-            // Toast.makeText(this, "No image found for this note", Toast.LENGTH_LONG).show();
-            //}
+            }
             // always close the cursor
             cursor.close();
         }
@@ -183,7 +181,6 @@ public class NoteEditorActivity extends AppCompatActivity
         View popupView = getLayoutInflater().inflate(R.layout.popup_layout, null);
         mPopupWindow = new PopupWindow(popupView,
                 WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        // Example: If you have a TextView inside `popup_layout.xml`
         ImageView imageView = (ImageView) popupView.findViewById(R.id.popupImageView);
         if (mPhotoFileName != null) {
             if (Utility.fileExist(mPhotoFileName)) {
@@ -194,14 +191,12 @@ public class NoteEditorActivity extends AppCompatActivity
         } else {
             Toast.makeText(this, "Image not found!", Toast.LENGTH_LONG).show();
         }
-        // If the PopupWindow should be focusable
+        // PopupWindow should be focusable
         mPopupWindow.setFocusable(true);
-        // If you need the PopupWindow to dismiss when when touched outside
+        // PopupWindow to dismiss when when touched outside
         mPopupWindow.setBackgroundDrawable(new ColorDrawable());
         int location[] = new int[2];
-        // Get the View's(the one that was clicked in the Fragment) location
         view.getLocationOnScreen(location);
-        // Using location, the PopupWindow will be displayed right under anchorView
         mPopupWindow.showAtLocation(view, Gravity.NO_GRAVITY,
                 location[0], location[1] + view.getHeight());
     }
@@ -213,7 +208,6 @@ public class NoteEditorActivity extends AppCompatActivity
         String address = mEtNoteAddress.getText().toString();
 
 
-        // only save if either summary or description is available
         if (description.length() == 0) {
             description = "No description added";
         }
@@ -281,7 +275,7 @@ public class NoteEditorActivity extends AppCompatActivity
                 startActivity(new Intent(this, NoteListActivity.class));
                 finish();
             } else {
-                // nothing to delte from database. Just return to previous activity.
+                // nothing to deal from database. Just return to previous activity.
                 finish();
             }
             return true;

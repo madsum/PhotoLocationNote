@@ -37,7 +37,6 @@ public class CameraActivity extends Activity {
     private static final int REQUEST_EXTERNAL_PERMISSION_RESULT = 200;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final String ACTIVITY_LAUNCH = "launch";
-    //private File capturedImage = null;
     private boolean activity_launch = true;
     // file url to store image
     private Uri fileUri;
@@ -71,7 +70,6 @@ public class CameraActivity extends Activity {
 
         if (mediaType == MEDIA_TYPE_IMAGE) {
             // capture picture
-            //captureImage();
             callCameraApp();
         } else {
             Utility.displayWarning(this, "Unknown media type", "Please try again");
@@ -131,10 +129,8 @@ public class CameraActivity extends Activity {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
-    /*
-         * Here we store the file url as it will be null after returning from camera
-         * app
-         */
+
+     //Here we store the file url as it will be null after returning from camera app
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -151,9 +147,8 @@ public class CameraActivity extends Activity {
         fileUri = savedInstanceState.getParcelable("file_uri");
     }
 
-    /**
-     * Receiving activity result method will be called after closing the camera
-     */
+
+     //Receiving activity result method will be called after closing the camera
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // if the result is capturing Image
@@ -204,7 +199,6 @@ public class CameraActivity extends Activity {
         }
         // picture will be visible in phone's gallery
         populatePhotoInGallery(fileUri.getPath());
-       // imageView.setImageBitmap(processedBitmap);
         startNoteActivity();
     }
 
@@ -235,8 +229,6 @@ public class CameraActivity extends Activity {
     }
 
     private File getOutputMediaFile(int type) {
-
-
         if (!Globals.getMediaStorageDir().isDirectory()) {
             Globals.getMediaStorageDir().mkdirs();
         }
