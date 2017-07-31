@@ -1,7 +1,12 @@
 package com.home.ma.photolocationnote;
 
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 
 import java.io.File;
 
@@ -42,6 +47,32 @@ public class Globals {
 
     public static File getMediaStorageDir() {
         return mediaStorageDir;
+    }
+
+    public static void openGallery(Context context) {
+        String bucketId = "";
+        final String[] projection = new String[] {"DISTINCT " + MediaStore.Images.Media.BUCKET_DISPLAY_NAME + ", " + MediaStore.Images.Media.BUCKET_ID};
+        final Cursor cur = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, null);
+        while (cur != null && cur.moveToNext()) {
+            final String bucketName = cur.getString((cur.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME)));
+            if (bucketName.equals(Globals.APPLICATION_NAME)) {
+                bucketId = cur.getString((cur.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_ID)));
+                break;
+            }
+        }
+        Uri mediaUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+        if (bucketId.length() > 0) {
+            mediaUri = mediaUri.buildUpon()
+                    .authority("media")
+                    .appendQueryParameter("bucketId", bucketId)
+                    .build();
+        }
+        if(cur != null){
+            cur.close();
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW, mediaUri);
+        context.startActivity(intent);
     }
 
     private Globals() {

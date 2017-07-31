@@ -11,15 +11,14 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -64,7 +63,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
@@ -93,6 +91,8 @@ public class MapsActivity extends AppCompatActivity implements
 
     private Handler handler = null;
     private HttpHandler httphandler = null;
+
+    private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
 
 
     protected LocationSettingsRequest mLocationSettingsRequest;
@@ -359,6 +359,18 @@ public class MapsActivity extends AppCompatActivity implements
                     finish();
                 }
                 break;
+            case MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE:
+
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        Globals.openGallery(this);
+                    }
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "External storage read permission is required to open Gallery", Toast.LENGTH_LONG).show();
+                    //finish();
+                }
+                break;
         }
     }
 
@@ -568,12 +580,19 @@ public class MapsActivity extends AppCompatActivity implements
             intent.putExtras(bundle);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-            File sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File f = new File(sdDir, Globals.APPLICATION_NAME);
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    f.getAbsolutePath()));
-            intent.setType("image/*");
-            startActivity(intent);
+            if(ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+               Globals.openGallery(this);
+            }else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if(shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                        Toast.makeText(this, "External storage permission is required to open Gallery", Toast.LENGTH_LONG).show();
+                    }
+                    requestPermissions(new String[] {android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
+                }else {
+                    Globals.openGallery(this);
+                }
+            }
         } else if (id == R.id.nav_notepad) {
             Intent intent = new Intent(this, NoteEditorActivity.class);
             startActivity(intent);

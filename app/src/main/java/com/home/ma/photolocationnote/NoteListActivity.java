@@ -2,13 +2,18 @@ package com.home.ma.photolocationnote;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,6 +28,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 import com.home.ma.photolocationnote.contentProvider.NoteContentProvider;
 import com.home.ma.photolocationnote.database.NoteDatabaseHelper;
@@ -39,6 +45,7 @@ public class NoteListActivity extends AppCompatActivity
     private static final int DELETE_ID = Menu.FIRST + 1;
     private SimpleCursorAdapter mAdapter;
     private ListView mListView;
+    private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,21 +214,25 @@ public class NoteListActivity extends AppCompatActivity
             intent.putExtras(bundle);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-            File sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File f = new File(sdDir, Globals.APPLICATION_NAME);
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    f.getAbsolutePath()));
-            intent.setType("image/*");
-            startActivity(intent);
-
+            if(ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                Globals.openGallery(this);
+            }else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if(shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                        Toast.makeText(this, "External storage permission is required to open Gallery", Toast.LENGTH_LONG).show();
+                    }
+                    requestPermissions(new String[] {android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
+                }else {
+                    Globals.openGallery(this);
+                }
+            }
         } else if (id == R.id.nav_notepad) {
             Intent intent = new Intent(this, NoteEditorActivity.class);
             startActivity(intent);
-
         } else if (id == R.id.nav_noteList) {
             Intent intent = new Intent(this, NoteListActivity.class);
             startActivity(intent);
-
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
@@ -231,6 +242,24 @@ public class NoteListActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE:
+
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        Globals.openGallery(this);
+                    }
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "External storage read permission is required to open Gallery", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
     }
 
     @Override

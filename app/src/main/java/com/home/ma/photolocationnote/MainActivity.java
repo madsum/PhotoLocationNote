@@ -1,12 +1,17 @@
 package com.home.ma.photolocationnote;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -28,6 +33,8 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,13 +101,22 @@ public class MainActivity extends AppCompatActivity
             intent.putExtras(bundle);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-            File sdDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-            File f = new File(sdDir, Globals.APPLICATION_NAME);
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(
-                    f.getAbsolutePath()));
-            intent.setType("image/*");
+            if(ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                Globals.openGallery(this);
+            }else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if(shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                        Toast.makeText(this, "External storage permission is required to open Gallery", Toast.LENGTH_LONG).show();
+                    }
+                    requestPermissions(new String[] {android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
+                }else {
+                    Globals.openGallery(this);
+                }
+            }
+        } else if (id == R.id.nav_noteList) {
+            Intent intent = new Intent(this, NoteListActivity.class);
             startActivity(intent);
-
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -116,5 +132,24 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE:
+
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        Globals.openGallery(this);
+                    }
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "External storage read permission is required to open Gallery", Toast.LENGTH_LONG).show();
+                }
+                break;
+        }
+    }
+
 
 }
