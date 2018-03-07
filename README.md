@@ -1,3 +1,2 @@
 # PhotoLocationNote
-XX
-MyXX CChCCesis updating it soon
+My thesis updating it soon
