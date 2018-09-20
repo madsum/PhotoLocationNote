@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -33,11 +34,13 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.home.ma.photolocationnote.azure.ImageManager;
 import com.home.ma.photolocationnote.contentProvider.NoteContentProvider;
 import com.home.ma.photolocationnote.database.NoteTable;
 import com.home.ma.photolocationnote.utility.Utility;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Calendar;
 
 public class NoteEditorActivity extends AppCompatActivity
@@ -263,6 +266,15 @@ public class NoteEditorActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
+        if (id == R.id.editor_upload) {
+            uploadPhoto();
+            setResult(RESULT_OK);
+            Toast.makeText(NoteEditorActivity.this, "Photo uploaded successfully", Toast.LENGTH_SHORT).show();
+            //startActivity(new Intent(this, NoteListActivity.class));
+            //finish();
+            return true;
+        }
+
         if (id == R.id.editor_save) {
             saveNote();
             setResult(RESULT_OK);
@@ -362,6 +374,50 @@ public class NoteEditorActivity extends AppCompatActivity
                     Toast.makeText(getApplicationContext(), "External storage read permission is required to open Gallery", Toast.LENGTH_LONG).show();
                 }
                 break;
+        }
+    }
+
+    private void uploadPhoto()
+    {
+        try {
+            final File photoFile = new File(mPhotoFileName);
+            if(photoFile == null){
+                Toast.makeText(NoteEditorActivity.this, "File not found", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            final InputStream imageStream = getContentResolver().openInputStream(Uri.fromFile(photoFile));
+            final int imageLength = imageStream.available();
+
+            final Handler handler = new Handler();
+
+            Thread th = new Thread(new Runnable() {
+                public void run() {
+
+                    try {
+
+                        final String imageName = ImageManager.UploadImage(imageStream, imageLength, photoFile.getName());
+
+                        handler.post(new Runnable() {
+
+                            public void run() {
+                                Toast.makeText(NoteEditorActivity.this, "Image Uploaded Successfully. Name = " + imageName, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                    catch(Exception ex) {
+                        final String exceptionMessage = ex.getMessage();
+                        handler.post(new Runnable() {
+                            public void run() {
+                                Toast.makeText(NoteEditorActivity.this, exceptionMessage, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }});
+            th.start();
+        }
+        catch(Exception ex) {
+
+            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 }

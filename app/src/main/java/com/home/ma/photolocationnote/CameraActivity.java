@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -22,11 +23,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.home.ma.photolocationnote.azure.ImageManager;
 import com.home.ma.photolocationnote.utility.Utility;
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.security.Permission;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -44,12 +51,13 @@ public class CameraActivity extends Activity {
     // final bitmap after address and time stamped.
     private Bitmap processedBitmap;
     private ImageView imageView;
+    private File mediaFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // To bypass the new Android security model
-         StrictMode.VmPolicy.Builder newbuilder = new StrictMode.VmPolicy.Builder();
+        StrictMode.VmPolicy.Builder newbuilder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(newbuilder.build());
         setContentView(R.layout.activity_camera);
         // Checking camera availability
@@ -95,7 +103,7 @@ public class CameraActivity extends Activity {
     }
 
     /*
-     * Capturing Camera Image will launch camera app requrest image capture
+     * Capturing Camera Image will launch camera app request image capture
      */
     private void captureImage() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -216,6 +224,7 @@ public class CameraActivity extends Activity {
     }
 
     private void populatePhotoInGallery(String path) {
+        //UploadImage();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             final Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             final Uri contentUri = Uri.fromFile(new File(path));
@@ -236,7 +245,7 @@ public class CameraActivity extends Activity {
         if (!Globals.getMediaStorageDir().isDirectory()) {
             Globals.getMediaStorageDir().mkdirs();
         }
-        File mediaFile;
+
 
         if (type == MEDIA_TYPE_IMAGE) {
             mediaFile = new File(Globals.getMediaStorageDir().getPath() + File.separator
@@ -252,5 +261,53 @@ public class CameraActivity extends Activity {
             return null;
         }
         return mediaFile;
+    }
+
+    private String getFilename(){
+       return mediaFile.getAbsoluteFile().getName();
+    }
+
+    private void UploadImage(){
+        try {
+            final InputStream imageStream = getContentResolver().openInputStream(fileUri);
+            final int imageLength = imageStream.available();
+            final String imageName = ImageManager.UploadImage(imageStream, imageLength, getFilename());
+            System.out.println(imageName);
+/*
+            final Handler handler = new Handler();
+
+            Thread th = new Thread(new Runnable() {
+                public void run() {
+
+                    try {
+
+                        final String imageName = ImageManager.UploadImage(imageStream, imageLength);
+
+                        handler.post(new Runnable() {
+
+                            public void run() {
+                                Toast.makeText(CameraActivity.this, "Image Uploaded Successfully. Name = " + imageName, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                    catch(Exception ex) {
+                        final String exceptionMessage = ex.getMessage();
+                        handler.post(new Runnable() {
+                            public void run() {
+                                Toast.makeText(CameraActivity.this, exceptionMessage, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }});
+            th.start();
+        }
+        catch(Exception ex) {
+
+            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        */
+        } catch (Exception ex) {
+            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 }

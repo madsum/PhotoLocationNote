@@ -59,6 +59,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.home.ma.photolocationnote.http.HttpHandler;
 import com.home.ma.photolocationnote.http.HttpListener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -469,9 +470,6 @@ public class MapsActivity extends AppCompatActivity implements
         handler.post(new Runnable() {
             @Override
             public void run() {
-                //Set some default values that we show if there are problems
-                String jsonUIStatus = "Error ";
-                String foundAddress = "No address";
                 if (http.getResCode() == HttpURLConnection.HTTP_OK
                         || http.getResCode() == HttpURLConnection.HTTP_ACCEPTED) {
                     String resp = http.getResponse();
@@ -481,9 +479,8 @@ public class MapsActivity extends AppCompatActivity implements
                         JSONObject jsonObject = new JSONObject(resp);
                         String respstatus = jsonObject.getString("status");
                         //Check if the status was OK
-                        if((respstatus.compareTo("OK") == 0) || (respstatus.compareTo("ok") == 0)){
+                        if((respstatus.compareTo("OK") == 0)){
                             Log.i(globals.TAG, "respstatus =  " + respstatus);
-                            jsonUIStatus = "Status: " + respstatus;
                         }
                         //Make a JSON array from the object (that contains array)
                         JSONArray arr  = jsonObject.getJSONArray("results");
@@ -496,7 +493,7 @@ public class MapsActivity extends AppCompatActivity implements
                                 String address = json_data.getString("formatted_address");
                                 //Want to show only first address, we may not need loop
                                 if(i == 0) {
-                                    foundAddress = address;
+                                    globals.setTotalAddress(address);
                                 }
                                 Log.i(globals.TAG, "address =  " + address);
                             }
@@ -507,7 +504,6 @@ public class MapsActivity extends AppCompatActivity implements
                         Log.i(globals.TAG, e.getMessage());
                     }
                 }
-                globals.setTotalAddress(foundAddress);
             }
         });
     }
