@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1044200274331",
+    "firebase_url": "https://my-firebas.firebaseio.com",
+    "project_id": "my-firebas",
+    "storage_bucket": "my-firebas.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1044200274331:android:5812e10907a7bb45",
+        "android_client_info": {
+          "package_name": "com.home.ma.photolocationnote"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1044200274331-71hqtehctrdrqe401uovddn4qnj3qljq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjGPm6vn2kK9wKfqIdy3XhtgGRBfQy49Q"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 
+
 android {
     compileSdkVersion 25
     buildToolsVersion '27.0.3'
@@ -33,6 +34,10 @@ dependencies {
     api 'com.microsoft.azure.android:azure-storage-android:2.0.0@aar'
     api group: 'javax.xml.stream', name: 'stax-api', version: '1.0-2'
     api group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'com.google.android.gms:play-services-analytics:16.0.0'
 
     testImplementation 'junit:junit:4.12'
 }
+
+
