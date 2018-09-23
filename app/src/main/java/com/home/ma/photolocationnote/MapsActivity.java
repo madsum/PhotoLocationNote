@@ -1,5 +1,6 @@
 package com.home.ma.photolocationnote;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -44,6 +45,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -56,6 +58,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.home.ma.photolocationnote.http.HttpHandler;
 import com.home.ma.photolocationnote.http.HttpListener;
 
@@ -67,15 +71,16 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
+        //GoogleApiClient.ConnectionCallbacks,
+        //GoogleApiClient.OnConnectionFailedListener,
         LocationListener,
-        HttpListener,
-        ResultCallback<LocationSettingsResult> {
+        HttpListener
+        /*ResultCallback<LocationSettingsResult>*/ {
 
     private GoogleMap mMap;
     private final static int MY_PERMISSION_FINE_LOCATION = 101;
@@ -83,17 +88,22 @@ public class MapsActivity extends AppCompatActivity implements
     private Button markBt;
     private Button satView;
     private Button clear;
-    private Double myLatitude = null;
-    private Double myLongitude = null;
+    private Double mLatitude = null;
+    private Double mLongitude = null;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private EditText etLocationEntry;
     private Globals globals = Globals.getInstance();
+    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 111;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private Location mLastLocation;
 
     private Handler handler = null;
     private HttpHandler httphandler = null;
 
     private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
+
+    public static final String TAG = "photoLocationNote";
 
 
     protected LocationSettingsRequest mLocationSettingsRequest;
@@ -138,16 +148,111 @@ public class MapsActivity extends AppCompatActivity implements
         // check is it connected to wifi or mobile data
         isConnected(this);
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         // build GoogleApiClient
-        buildGoogleApiClient();
+       // buildGoogleApiClient();
         // create LocationReest
-        createLocationRequest();
+      //  createLocationRequest();
         // build Location Settings Request
-        buildLocationSettingsRequest();
+     //   buildLocationSettingsRequest();
         // check locaiton setting if gps off ask to turn on
-        checkLocationSettings();
+     //   checkLocationSettings();
         // initialise map UK
         mapUIInitialise();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!checkPermissions()) {
+            Log.i(TAG, "Inside onStart function; requesting permission when permission is not available");
+            requestPermissions();
+        } else {
+            Log.i(TAG, "Inside onStart function; getting location when permission is already available");
+            getLastLocation();
+        }
+    }
+
+
+    //Return whether permissions is needed as boolean value.
+    private boolean checkPermissions() {
+        int permissionState = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+        return permissionState == PackageManager.PERMISSION_GRANTED;
+    }
+
+    //Request permission from user
+    private void requestPermissions() {
+        Log.i(TAG, "Inside requestPermissions function");
+        boolean shouldProvideRationale =
+                ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION);
+
+        //Log an additional rationale to the user. This would happen if the user denied the
+        //request previously, but didn't check the "Don't ask again" checkbox.
+        // In case you want, you can also show snackbar. Here, we used Log just to clear the concept.
+        if (shouldProvideRationale) {
+            Log.i(TAG, "****Inside requestPermissions function when shouldProvideRationale = true");
+            startLocationPermissionRequest();
+        } else {
+            Log.i(TAG, "****Inside requestPermissions function when shouldProvideRationale = false");
+            startLocationPermissionRequest();
+        }
+    }
+
+    //Start the permission request dialog
+    private void startLocationPermissionRequest() {
+        ActivityCompat.requestPermissions(MapsActivity.this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                REQUEST_PERMISSIONS_REQUEST_CODE);
+    }
+
+    /**
+     * Callback to the following function is received when a permissions request has been completed.
+     */
+   /* @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
+            if (grantResults.length <= 0) {
+                // user interaction is cancelled; in such case we will receive empty grantResults[]
+                //In such case, just record/log it.
+                Log.i(TAG, "User interaction has been cancelled.");
+            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission is granted by the user.
+                Log.i(TAG, "User permission has been given. Now getting location");
+                getLastLocation();
+            } else {
+                // Permission is denied by the user.
+                Log.i(TAG, "User denied permission.");
+            }
+        }
+    }*/
+
+    /**
+     * This method should be called after location permission is granted. It gets the recently available location,
+     * In some situations, when location, is not available, it may produce null result.
+     * WE used SuppressWarnings annotation to avoid the missing permission warnng. You can comment the annotation
+     * and check the behaviour yourself.
+     */
+    @SuppressWarnings("MissingPermission")
+    private void getLastLocation() {
+        mFusedLocationClient.getLastLocation()
+                .addOnCompleteListener(this, new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            mLastLocation = task.getResult();
+                            mLatitude =  mLastLocation.getLatitude();
+                            mLongitude = mLastLocation.getLongitude();
+                           // mLatitudeText.setText(String.format(Locale.ENGLISH, "%s: %f", mLatitudeLabel, mLastLocation.getLatitude()));
+                           /// mLongitudeText.setText(String.format(Locale.ENGLISH, "%s: %f",mLongitudeLabel, mLastLocation.getLongitude()));
+                        } else {
+                            Log.i(TAG, "Inside getLocation function. Error while getting location");
+                            System.out.println(TAG+task.getException());
+                        }
+                    }
+                });
     }
 
     public  boolean isConnected(Context context) {
@@ -240,7 +345,7 @@ public class MapsActivity extends AppCompatActivity implements
                         LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
 
                         mMap.addMarker(new MarkerOptions().position(latLng).title("from geo coder"));
-                        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(mLatitude, mLongitude)));
                     }
                     return true;
                 }
@@ -272,7 +377,7 @@ public class MapsActivity extends AppCompatActivity implements
         });
     }
 
-    protected synchronized void buildGoogleApiClient() {
+   /* protected synchronized void buildGoogleApiClient() {
         Log.i(globals.TAG, "Building GoogleApiClient");
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -301,7 +406,7 @@ public class MapsActivity extends AppCompatActivity implements
                         mLocationSettingsRequest
                 );
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 result.setResultCallback(this);
-    }
+    }*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -311,7 +416,7 @@ public class MapsActivity extends AppCompatActivity implements
                 switch (resultCode) {
                     case Activity.RESULT_OK:
                         Log.i(globals.TAG, "User agreed to make required location settings changes.");
-                        requestLocationUpdates();
+                        getLastLocation();
                         break;
                     case Activity.RESULT_CANCELED:
                         Log.i(globals.TAG, "User chose not to make required location settings changes.");
@@ -345,6 +450,9 @@ public class MapsActivity extends AppCompatActivity implements
         }
     }
 
+    /**
+     * Callback to the following function is received when a permissions request has been completed.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -375,7 +483,7 @@ public class MapsActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
+    /*@Override
     public void onConnected(@Nullable Bundle bundle) {
         requestLocationUpdates();
     }
@@ -395,12 +503,12 @@ public class MapsActivity extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.i(globals.TAG, "Connection Failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
-    }
+    }*/
 
     @Override
     public void onLocationChanged(Location location) {
-        myLatitude = location.getLatitude();
-        myLongitude = location.getLongitude();
+        mLatitude = location.getLatitude();
+        mLongitude = location.getLongitude();
         Globals.setLocation(location);
         // as soon as we get location, I tired to find local address
         startDownLoadingAddressJSON();
@@ -416,11 +524,11 @@ public class MapsActivity extends AppCompatActivity implements
 
     private void startDownLoadingAddressJSON() {
         handler = new Handler();
-        JSONDownloaderThread jSONDownloaderThread = new JSONDownloaderThread(myLatitude, myLongitude);
+        JSONDownloaderThread jSONDownloaderThread = new JSONDownloaderThread(mLatitude, mLongitude);
         new Thread(jSONDownloaderThread).start();
     }
 
-    @Override
+    /*@Override
     public void onResult(LocationSettingsResult locationSettingsResult) {
         final Status status = locationSettingsResult.getStatus();
         switch (status.getStatusCode()) {
@@ -445,7 +553,7 @@ public class MapsActivity extends AppCompatActivity implements
                         "not created.");
                 break;
         }
-    }
+    }*/
     class JSONDownloaderThread implements Runnable {
 
         private volatile double lat;
@@ -508,11 +616,11 @@ public class MapsActivity extends AppCompatActivity implements
         });
     }
 
-    @Override
+/*    @Override
     protected void onStart() {
         super.onStart();
         mGoogleApiClient.connect();
-    }
+    }*/
 
     @Override
     protected void onPause() {
@@ -526,7 +634,7 @@ public class MapsActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         if (mGoogleApiClient.isConnected()) {
-            requestLocationUpdates();
+            getLastLocation();
         }
     }
 
