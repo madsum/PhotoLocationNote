@@ -3,6 +3,7 @@
     package="com.home.ma.photolocationnote">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -34,11 +35,8 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBm6osOXLD7YNbXHnQHK1r-1YoEJjV68g8" />
+            android:value="AIzaSyCpYDRBczRsWLWykq7wZXUkvY_Llaxb2ig" />
 
-<!--        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAHvQ1BdX837y54tQtrdoTsvzivwa7vK9o"/>-->
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
