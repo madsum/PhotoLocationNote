@@ -37,14 +37,6 @@
         android:layout_below="@+id/locationEntryLayout"
         tools:context="com.home.ma.photolocationnote.MapsActivity" />
 
-    <!--<Button
-        android:id="@+id/btMark"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:text="Mark" />-->
-
     <Button
         android:id="@+id/btSatellite"
         android:layout_width="wrap_content"
