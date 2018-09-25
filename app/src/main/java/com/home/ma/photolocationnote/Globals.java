@@ -13,8 +13,10 @@ import java.io.File;
 public class Globals {
 
     private static Globals instance = new Globals();
+    private static Context context;
 
-    public static Globals getInstance() {
+    public static Globals getInstance(Context context) {
+        Globals.context = context;
         return instance;
     }
 

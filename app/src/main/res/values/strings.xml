@@ -10,4 +10,6 @@
     <string name="title_activity_details">DetailsActivity</string>
     <string name="title_activity_note_editor">Editor</string>
     <string name="title_activity_note_list">Note List</string>
+    <string name="send_button">Send Notification</string>
+    <string name="notification_message_hint">Enter notification message text</string>
 </resources>

@@ -200,7 +200,7 @@ public class CameraActivity extends Activity {
         cs.drawBitmap(srcBitmap, 0f, 0f, null);
         float height = tPaint.measureText("yX");
         // current address to stamped
-        cs.drawText(Globals.getInstance().getTotalAddress(), 0, processedBitmap.getHeight() - height, tPaint);
+        cs.drawText(Globals.getInstance(this).getTotalAddress(), 0, processedBitmap.getHeight() - height, tPaint);
         // current time text to stamped
         cs.drawText(sdf.format(Calendar.getInstance().getTime()), 0, processedBitmap.getHeight(), tPaint);
         try {

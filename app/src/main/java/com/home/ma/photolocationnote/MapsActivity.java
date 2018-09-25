@@ -75,7 +75,7 @@ public class MapsActivity extends AppCompatActivity implements
     private Double mLongitude = null;
     private LocationRequest mLocationRequest;
     private EditText etLocationEntry;
-    private Globals globals = Globals.getInstance();
+    private Globals globals = Globals.getInstance(this);
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 111;
     private FusedLocationProviderClient mFusedLocationClient;
     private Location mLastLocation;
