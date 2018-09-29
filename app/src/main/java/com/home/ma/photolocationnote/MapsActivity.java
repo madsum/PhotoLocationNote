@@ -39,6 +39,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ZoomControls;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -53,7 +55,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.home.ma.photolocationnote.azure.MyHandler;
+import com.home.ma.photolocationnote.azure.NotificationSettings;
+import com.home.ma.photolocationnote.azure.RegistrationIntentService;
 import com.home.ma.photolocationnote.http.HttpHandler;
+import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -83,6 +89,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     public static final String TAG = "photoLocationNote";
 
@@ -116,6 +123,38 @@ public class MapsActivity extends AppCompatActivity implements
         isConnected(this);
         // initialise map
         mapUIInitialise();
+
+        // Register for push notification.
+        NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, MyHandler.class);
+        registerWithNotificationHubs();
+    }
+
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Log.i(TAG, "This device is not supported by Google Play Services.");
+                Toast.makeText(this, "This device is not supported by Google Play Services.", Toast.LENGTH_LONG).show();
+                return false;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public void registerWithNotificationHubs()
+    {
+        Log.i(TAG, " Registering with Notification Hubs");
+
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
     }
 
     private void startLocationUpdates() {

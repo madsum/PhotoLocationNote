@@ -8,6 +8,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.widget.Toast;
 
 import com.home.ma.photolocationnote.MainActivity;
 import com.home.ma.photolocationnote.R;
@@ -24,9 +25,7 @@ public class MyHandler extends NotificationsHandler {
         ctx = context;
         String nhMessage = bundle.getString("message");
         sendNotification(nhMessage);
-        if (MainActivity.isVisible) {
-            MainActivity.mainActivity.ToastNotify(nhMessage);
-        }
+        Toast.makeText(context, nhMessage, Toast.LENGTH_LONG).show();
     }
 
     private void sendNotification(String msg) {
@@ -44,7 +43,7 @@ public class MyHandler extends NotificationsHandler {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(ctx)
                         .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("Notification Hub Demo")
+                        .setContentTitle("Phonto Location Note")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setSound(defaultSoundUri)

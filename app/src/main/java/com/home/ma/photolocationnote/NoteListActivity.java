@@ -30,10 +30,16 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.home.ma.photolocationnote.azure.MyHandler;
+import com.home.ma.photolocationnote.azure.NotificationSettings;
+import com.home.ma.photolocationnote.azure.RegistrationIntentService;
 import com.home.ma.photolocationnote.contentProvider.NoteContentProvider;
 import com.home.ma.photolocationnote.database.NoteDatabaseHelper;
 import com.home.ma.photolocationnote.database.NoteTable;
 import com.home.ma.photolocationnote.utility.Utility;
+import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 import java.io.File;
 
@@ -46,6 +52,9 @@ public class NoteListActivity extends AppCompatActivity
     private SimpleCursorAdapter mAdapter;
     private ListView mListView;
     private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private Globals globals = Globals.getInstance(this);
+    public static final String TAG = "photoLocationNote";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +78,38 @@ public class NoteListActivity extends AppCompatActivity
         mListView.setOnItemClickListener(this);
 
         fillData();
+
+        // Register for push notification.
+        NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, MyHandler.class);
+        registerWithNotificationHubs();
+    }
+
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Log.i(TAG, "This device is not supported by Google Play Services.");
+                Toast.makeText(this, "This device is not supported by Google Play Services.", Toast.LENGTH_LONG).show();
+                return false;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public void registerWithNotificationHubs()
+    {
+        Log.i(TAG, " Registering with Notification Hubs");
+
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
     }
 
     @Override

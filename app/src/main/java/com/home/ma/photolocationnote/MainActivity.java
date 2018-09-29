@@ -26,6 +26,7 @@ import com.google.android.gms.gcm.*;
 import com.home.ma.photolocationnote.azure.MyHandler;
 import com.home.ma.photolocationnote.azure.NotificationSettings;
 import com.home.ma.photolocationnote.azure.RegistrationIntentService;
+import com.home.ma.photolocationnote.utility.Utility;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 import android.widget.TextView;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity
 
     private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
     public static MainActivity mainActivity;
+    private Globals globals = Globals.getInstance(this);
     public static Boolean isVisible = false;
     private GoogleCloudMessaging gcm;
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -72,8 +74,9 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         mainActivity = this;
+        // Register for push notification.
         NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, MyHandler.class);
-        registerWithNotificationHubs();
+        globals.registerWithNotificationHubs();
     }
 
     @Override
@@ -136,7 +139,11 @@ public class MainActivity extends AppCompatActivity
                     Globals.openGallery(this);
                 }
             }
-        } else if (id == R.id.nav_noteList) {
+        } else if (id == R.id.nav_notepad) {
+            Intent intent = new Intent(this, NoteEditorActivity.class);
+            startActivity(intent);
+
+        }else if (id == R.id.nav_noteList) {
             Intent intent = new Intent(this, NoteListActivity.class);
             startActivity(intent);
 
@@ -173,38 +180,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * Check the device to make sure it has the Google Play Services APK. If
-     * it doesn't, display a dialog that allows users to download the APK from
-     * the Google Play Store or enable it in the device's system settings.
-     */
-    private boolean checkPlayServices() {
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (apiAvailability.isUserResolvableError(resultCode)) {
-                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
-                        .show();
-            } else {
-                Log.i(TAG, "This device is not supported by Google Play Services.");
-                ToastNotify("This device is not supported by Google Play Services.");
-                finish();
-            }
-            return false;
-        }
-        return true;
-    }
-
-    public void registerWithNotificationHubs()
-    {
-        Log.i(TAG, " Registering with Notification Hubs");
-
-        if (checkPlayServices()) {
-            // Start IntentService to register this application with GCM.
-            Intent intent = new Intent(this, RegistrationIntentService.class);
-            startService(intent);
-        }
-    }
 
     public void ToastNotify(final String notificationMessage) {
         runOnUiThread(new Runnable() {
@@ -331,8 +306,16 @@ public class MainActivity extends AppCompatActivity
      */
     public void sendNotificationButtonOnClick(View v) {
         EditText notificationText = (EditText) findViewById(R.id.editTextNotificationMessage);
-        final String json = "{\"data\":{\"message\":\"" + notificationText.getText().toString() + "\"}}";
+        String json = null;
+          if (Globals.getInstance(this).getmPhotoFileName() != null && Utility.fileExist(Globals.getInstance(this).getmPhotoFileName())) {
+            String[] splitPath = Globals.getInstance(this).getmPhotoFileName().split("/");
+            String fileName = splitPath[splitPath.length -1];
+            json =  "{\"data\":{\"message\":\"" + fileName +"available in Azure blob storage!"  + "\"}}";
+        }else{
+            json = "{\"data\":{\"message\":\"" + notificationText.getText().toString() + "\"}}";
+        }
 
+        String finalJson = json;
         new Thread()
         {
             public void run()
@@ -365,9 +348,9 @@ public class MainActivity extends AppCompatActivity
                         //        "tag1 || tag2 || tag3");
 
                         // Send notification message
-                        urlConnection.setFixedLengthStreamingMode(json.length());
+                        urlConnection.setFixedLengthStreamingMode(finalJson.length());
                         OutputStream bodyStream = new BufferedOutputStream(urlConnection.getOutputStream());
-                        bodyStream.write(json.getBytes());
+                        bodyStream.write(finalJson.getBytes());
                         bodyStream.close();
 
                         // Get reponse
