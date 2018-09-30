@@ -43,6 +43,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-gcm:15.0.1'
     implementation 'com.microsoft.azure:notification-hubs-android-sdk:0.4@aar'
     implementation 'com.microsoft.azure:azure-notifications-handler:1.0.1@aar'
+    // implementation 'com.github.johnpersano:supertoasts:2.0'
 
     testImplementation 'junit:junit:4.12'
 }
@@ -52,5 +53,3 @@ repositories {
         url "http://dl.bintray.com/microsoftazuremobile/SDK"
     }
 }
-
-

@@ -1,20 +1,25 @@
 package com.home.ma.photolocationnote;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.Layout;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -34,7 +39,6 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.home.ma.photolocationnote.azure.ImageManager;
@@ -80,6 +84,7 @@ public class NoteEditorActivity extends AppCompatActivity
     private String HubSasKeyName = null;
     private String HubSasKeyValue = null;
     public static final String TAG = "photoLocationNote";
+    private DrawerLayout drawer;
 
 
     @Override
@@ -89,7 +94,8 @@ public class NoteEditorActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name) {
 
@@ -321,12 +327,28 @@ public class NoteEditorActivity extends AppCompatActivity
         return true;
     }
 
+    private void stat(){
+        startActivity(new Intent(this, NoteListActivity.class));
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.editor_upload) {
             if(mPhotoFileName == null){
+                hideKeyboard(this);
                 Toast.makeText(NoteEditorActivity.this, "No photo available to upload!", Toast.LENGTH_SHORT).show();
             }else{
                 uploadPhoto();
@@ -369,6 +391,7 @@ public class NoteEditorActivity extends AppCompatActivity
 
         return super.onOptionsItemSelected(item);
     }
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -569,8 +592,6 @@ public class NoteEditorActivity extends AppCompatActivity
      * token is added to the Authorization header on the POST request to the
      * notification hub. The text in the editTextNotificationMessage control
      * is added as the JSON body for the request to add a GCM message to the hub.
-     *
-     * @param v
      */
     public void sendNotificationButtonOnClick(String pushMsg) {
         final String json = "{\"data\":{\"message\":\"" + pushMsg + "\"}}";

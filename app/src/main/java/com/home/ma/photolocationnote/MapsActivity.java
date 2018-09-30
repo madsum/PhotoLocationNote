@@ -541,7 +541,7 @@ public class MapsActivity extends AppCompatActivity implements
 
         if(id == R.id.nav_home)
         {
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, AzurePhotoList.class);
             startActivity(intent);
         }
         else if (id == R.id.nav_camera) {
