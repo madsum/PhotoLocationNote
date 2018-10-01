@@ -68,7 +68,7 @@ public class  AzurePhotoList extends AppCompatActivity
                     handler.post(() -> {
                         AzurePhotoList.this.images = images;
                         ArrayAdapter<String> adapter = new ArrayAdapter<String>(AzurePhotoList.this,
-                                android.R.layout.simple_list_item_1, android.R.id.text1, images);
+                                R.layout.content_azure_photo_list, R.id.azure_list_item_name, images);
                         /*ArrayAdapter<String> adapter = new ArrayAdapter<String>(AzurePhotoList.this,
                                 R.layout.content_azure_photo_list,R.id.azure_list_item_name, images);*/
                         mListView.setAdapter(adapter);
@@ -136,4 +136,5 @@ public class  AzurePhotoList extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }
