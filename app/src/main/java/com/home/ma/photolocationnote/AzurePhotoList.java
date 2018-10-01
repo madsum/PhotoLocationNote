@@ -18,6 +18,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.home.ma.photolocationnote.azure.ImageManager;
+import com.home.ma.photolocationnote.utility.NVP;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class  AzurePhotoList extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -25,6 +29,7 @@ public class  AzurePhotoList extends AppCompatActivity
     private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
     private String[] images;
     private ListView mListView;
+    private ArrayList<NVP> nameValuePairs = new ArrayList<NVP>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +53,15 @@ public class  AzurePhotoList extends AppCompatActivity
         // ListView Item Click Listener
         mListView.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(getBaseContext(), AzureImageActivity.class);
-            intent.putExtra("image", images[position]);
+            int index = 0;
+            for(String image : images){
+                nameValuePairs.add(new NVP(image, index));
+                index++;
+            }
+            intent.putExtra("nvp", nameValuePairs);
+            intent.putExtra("selectedImage", images[position]);
+            intent.putExtra("position", position);
+            //intent.putExtra("image", images[position]);
             startActivity(intent);
 
         });
@@ -68,7 +81,7 @@ public class  AzurePhotoList extends AppCompatActivity
                     handler.post(() -> {
                         AzurePhotoList.this.images = images;
                         ArrayAdapter<String> adapter = new ArrayAdapter<String>(AzurePhotoList.this,
-                                R.layout.content_azure_photo_list, R.id.azure_list_item_name, images);
+                                android.R.layout.simple_list_item_1, android.R.id.text1, images);
                         /*ArrayAdapter<String> adapter = new ArrayAdapter<String>(AzurePhotoList.this,
                                 R.layout.content_azure_photo_list,R.id.azure_list_item_name, images);*/
                         mListView.setAdapter(adapter);
@@ -127,7 +140,7 @@ public class  AzurePhotoList extends AppCompatActivity
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
-
+            Globals.shareTextUrl(this);
         } else if (id == R.id.nav_send) {
 
         }

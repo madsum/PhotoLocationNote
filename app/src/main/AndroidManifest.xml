@@ -110,7 +110,10 @@
             android:label="Azure Photos"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <activity android:name=".AzureImageActivity"></activity>
+        <activity
+            android:name=".AzureImageActivity"
+            android:label="Image"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

@@ -573,6 +573,7 @@ public class MapsActivity extends AppCompatActivity implements
             startActivity(intent);
 
         } else if (id == R.id.nav_share) {
+            Globals.shareTextUrl(this);
 
         } else if (id == R.id.nav_send) {
 

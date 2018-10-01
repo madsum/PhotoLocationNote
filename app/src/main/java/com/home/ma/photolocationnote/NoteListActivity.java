@@ -275,7 +275,7 @@ public class NoteListActivity extends AppCompatActivity
             Intent intent = new Intent(this, NoteListActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_share) {
-
+            Globals.shareTextUrl(this);
         } else if (id == R.id.nav_send) {
 
         }

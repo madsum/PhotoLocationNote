@@ -312,4 +312,18 @@ public class Globals {
         return true;
     }
 
+    // Method to share either text or URL.
+    public static void shareTextUrl(Activity activity) {
+        Intent share = new Intent(android.content.Intent.ACTION_SEND);
+        share.setType("text/plain");
+        share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+
+        // Add data to the intent, the receiving app will decide
+        // what to do with it.
+        share.putExtra(Intent.EXTRA_SUBJECT, "Photo Location Note");
+        share.putExtra(Intent.EXTRA_TEXT, "https://play.google.com/store/apps/details?id=com.home.ma.photolocationnote");
+
+        activity.startActivity(Intent.createChooser(share, "Share link!"));
+    }
+
 }
