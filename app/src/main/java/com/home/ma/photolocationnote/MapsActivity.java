@@ -539,7 +539,12 @@ public class MapsActivity extends AppCompatActivity implements
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if(id == R.id.nav_home)
+       /* if(id == R.id.nav_home)
+        {
+            Intent intent = new Intent(this, AzurePhotoList.class);
+            startActivity(intent);
+        }*/
+        if(id == R.id.nav_azure_photo_list)
         {
             Intent intent = new Intent(this, AzurePhotoList.class);
             startActivity(intent);

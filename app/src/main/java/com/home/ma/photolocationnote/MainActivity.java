@@ -8,7 +8,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Base64;
-import android.util.Log;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -20,12 +19,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.gcm.*;
+
 import com.home.ma.photolocationnote.azure.MyHandler;
 import com.home.ma.photolocationnote.azure.NotificationSettings;
-import com.home.ma.photolocationnote.azure.RegistrationIntentService;
 import com.home.ma.photolocationnote.utility.Utility;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
 
@@ -49,7 +45,6 @@ public class MainActivity extends AppCompatActivity
     public static MainActivity mainActivity;
     private Globals globals = Globals.getInstance(this);
     public static Boolean isVisible = false;
-    private GoogleCloudMessaging gcm;
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "MainActivity";
     private String HubEndpoint = null;
@@ -307,8 +302,8 @@ public class MainActivity extends AppCompatActivity
     public void sendNotificationButtonOnClick(View v) {
         EditText notificationText = (EditText) findViewById(R.id.editTextNotificationMessage);
         String json = null;
-          if (Globals.getInstance(this).getmPhotoFileName() != null && Utility.fileExist(Globals.getInstance(this).getmPhotoFileName())) {
-            String[] splitPath = Globals.getInstance(this).getmPhotoFileName().split("/");
+          if (Globals.getInstance(this).getmPhotoFilePath() != null && Utility.fileExist(Globals.getInstance(this).getmPhotoFilePath())) {
+            String[] splitPath = Globals.getInstance(this).getmPhotoFilePath().split("/");
             String fileName = splitPath[splitPath.length -1];
             json =  "{\"data\":{\"message\":\"" + fileName +"available in Azure blob storage!"  + "\"}}";
         }else{

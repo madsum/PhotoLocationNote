@@ -260,6 +260,7 @@ public class CameraActivity extends Activity {
         } else {
             return null;
         }
+        Globals.setmPhotoFileName(mediaFile.getAbsoluteFile().getName());
         return mediaFile;
     }
 

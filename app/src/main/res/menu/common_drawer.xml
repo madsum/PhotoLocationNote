@@ -3,21 +3,17 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_home"
-            android:icon="@mipmap/ic_home_black_24dp"
-            android:title="Home" />
-        <item
             android:id="@+id/nav_location"
             android:icon="@mipmap/ic_my_location_black_24dp"
             android:title="Current location" />
+        <!-- <item
+             android:id="@+id/nav_home"
+             android:icon="@mipmap/ic_home_black_24dp"
+             android:title="Home" />-->
         <item
             android:id="@+id/nav_camera"
             android:icon="@drawable/ic_menu_camera"
             android:title="Camera" />
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
         <item
             android:id="@+id/nav_notepad"
             android:icon="@mipmap/ic_note_add_black_24dp"
@@ -26,6 +22,14 @@
             android:id="@+id/nav_noteList"
             android:icon="@mipmap/ic_view_list_black_24dp"
             android:title="Note list" />
+        <item
+            android:id="@+id/nav_gallery"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="Gallery" />
+        <item
+            android:id="@+id/nav_azure_photo_list"
+            android:icon="@mipmap/baseline_format_list_numbered_black_24"
+            android:title="Azure Photos" />
     </group>
 
     <item android:title="Communicate">
@@ -34,10 +38,10 @@
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
                 android:title="Share" />
-            <item
+           <!-- <item
                 android:id="@+id/nav_send"
                 android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:title="Send" />-->
         </menu>
     </item>
 

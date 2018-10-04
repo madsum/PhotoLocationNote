@@ -10,9 +10,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -68,6 +65,8 @@ public class Globals {
     private static File mediaStorageDir = new File(Environment.getExternalStorageDirectory().toString(),
                 "/media/" + APPLICATION_NAME + "/");
 
+    private static String mPhotoFilePath = null;
+
     private static String mPhotoFileName = null;
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -110,6 +109,14 @@ public class Globals {
 
     }
 
+    public static String getmPhotoFilePath() {
+        return mPhotoFilePath;
+    }
+
+    public static void setmPhotoFilePath(String mPhotoFilePath) {
+        Globals.mPhotoFilePath = mPhotoFilePath;
+    }
+
     public static String getmPhotoFileName() {
         return mPhotoFileName;
     }
@@ -117,6 +124,7 @@ public class Globals {
     public static void setmPhotoFileName(String mPhotoFileName) {
         Globals.mPhotoFileName = mPhotoFileName;
     }
+
 
 
     public void ToastNotify(final String notificationMessage) {

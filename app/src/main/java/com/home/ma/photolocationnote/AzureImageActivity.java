@@ -111,6 +111,11 @@ public class AzureImageActivity extends AppCompatActivity implements NavigationV
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        if(id == R.id.nav_azure_photo_list)
+        {
+            Intent intent = new Intent(this, AzurePhotoList.class);
+            startActivity(intent);
+        }
         if (id == R.id.nav_location) {
             Intent intent = new Intent(this, MapsActivity.class);
             startActivity(intent);

@@ -7,19 +7,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.text.Layout;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
@@ -192,7 +187,7 @@ public class NoteEditorActivity extends AppCompatActivity
                     mTvImageName.setText("Photo");
                     mTvImageName.setVisibility(View.VISIBLE);
                     if (Utility.fileExist(mPhotoFileName)) {
-                        Globals.getInstance(this).setmPhotoFileName(mPhotoFileName);
+                        Globals.getInstance(this).setmPhotoFilePath(mPhotoFileName);
                     }
                 }
                 // I should set current date
@@ -399,8 +394,13 @@ public class NoteEditorActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if(id == R.id.nav_home) {
+        /*if(id == R.id.nav_home) {
             Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }*/
+        if(id == R.id.nav_azure_photo_list)
+        {
+            Intent intent = new Intent(this, AzurePhotoList.class);
             startActivity(intent);
         }
         else if(id == R.id.nav_location) {
