@@ -61,9 +61,7 @@ public class  AzurePhotoList extends AppCompatActivity
             intent.putExtra("nvp", nameValuePairs);
             intent.putExtra("selectedImage", images[position]);
             intent.putExtra("position", position);
-            //intent.putExtra("image", images[position]);
             startActivity(intent);
-
         });
         loadImageFromAzure();
     }

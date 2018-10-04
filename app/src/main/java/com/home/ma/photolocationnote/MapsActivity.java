@@ -54,7 +54,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.home.ma.photolocationnote.azure.MyHandler;
 import com.home.ma.photolocationnote.azure.NotificationSettings;
 import com.home.ma.photolocationnote.azure.RegistrationIntentService;
@@ -539,7 +542,7 @@ public class MapsActivity extends AppCompatActivity implements
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if(id == R.id.nav_home)
+        if(id == R.id.nav_azure_photo_list)
         {
             Intent intent = new Intent(this, AzurePhotoList.class);
             startActivity(intent);
@@ -583,4 +586,5 @@ public class MapsActivity extends AppCompatActivity implements
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }

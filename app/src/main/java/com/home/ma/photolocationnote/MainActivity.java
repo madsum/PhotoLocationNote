@@ -5,31 +5,26 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Base64;
-import android.util.Log;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.gcm.*;
+
 import com.home.ma.photolocationnote.azure.MyHandler;
 import com.home.ma.photolocationnote.azure.NotificationSettings;
-import com.home.ma.photolocationnote.azure.RegistrationIntentService;
 import com.home.ma.photolocationnote.utility.Utility;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
-
-import android.widget.TextView;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -49,7 +44,6 @@ public class MainActivity extends AppCompatActivity
     public static MainActivity mainActivity;
     private Globals globals = Globals.getInstance(this);
     public static Boolean isVisible = false;
-    private GoogleCloudMessaging gcm;
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private static final String TAG = "MainActivity";
     private String HubEndpoint = null;

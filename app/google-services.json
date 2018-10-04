@@ -1,27 +1,35 @@
 {
   "project_info": {
-    "project_number": "1044200274331",
-    "firebase_url": "https://my-firebas.firebaseio.com",
-    "project_id": "my-firebas",
-    "storage_bucket": "my-firebas.appspot.com"
+    "project_number": "894588355869",
+    "firebase_url": "https://photolocationnote2-8390e.firebaseio.com",
+    "project_id": "photolocationnote2-8390e",
+    "storage_bucket": "photolocationnote2-8390e.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1044200274331:android:5812e10907a7bb45",
+        "mobilesdk_app_id": "1:894588355869:android:5812e10907a7bb45",
         "android_client_info": {
           "package_name": "com.home.ma.photolocationnote"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1044200274331-71hqtehctrdrqe401uovddn4qnj3qljq.apps.googleusercontent.com",
+          "client_id": "894588355869-ng2o0po8r8igdtkg3k0jd1s0kngvpiob.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.home.ma.photolocationnote",
+            "certificate_hash": "29ace553e7321d99c15ba3732d5f2b03bed90598"
+          }
+        },
+        {
+          "client_id": "894588355869-jqkak5bk3ju2hglm6cotgh4j40ifn3or.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDjGPm6vn2kK9wKfqIdy3XhtgGRBfQy49Q"
+          "current_key": "AIzaSyDgZ-JJal6j8x3pQscmVxRByKgF4DqPHKU"
         }
       ],
       "services": {
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "894588355869-jqkak5bk3ju2hglm6cotgh4j40ifn3or.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

@@ -31,9 +31,6 @@ android {
     }
     useLibrary 'org.apache.http.legacy'
     packagingOptions {
-        //pickFirst 'org.apache.http.*'
-       // pickFirst 'org.apache.http.NameValuePair'
-       // pickFirst 'org.apache.http.message.BasicNameValuePair'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
@@ -58,17 +55,21 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.0'
     implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation 'com.google.android.gms:play-services-analytics:16.0.0'
-    implementation 'com.google.android.gms:play-services-maps:15.0.1'
+    implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'com.google.android.gms:play-services-location:15.0.1'
-    implementation 'com.google.android.gms:play-services-gcm:15.0.1'
+    //implementation 'com.google.android.gms:play-services-gcm:15.0.1'
+    implementation "com.google.firebase:firebase-messaging:17.3.0"
     implementation 'com.microsoft.azure:notification-hubs-android-sdk:0.4@aar'
     implementation 'com.microsoft.azure:azure-notifications-handler:1.0.1@aar'
     implementation 'com.google.http-client:google-http-client-android:+'
     implementation 'com.google.api-client:google-api-client-android:+'
     implementation 'com.google.api-client:google-api-client-gson:+'
+    implementation 'com.google.gms:google-services:3.0.0'
 
     testImplementation 'junit:junit:4.12'
 }
+
+//apply plugin: 'com.google.gms.google-services'
 
 repositories {
     maven {

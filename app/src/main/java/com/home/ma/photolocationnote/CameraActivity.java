@@ -267,47 +267,4 @@ public class CameraActivity extends Activity {
        return mediaFile.getAbsoluteFile().getName();
     }
 
-    private void UploadImage(){
-        try {
-            final InputStream imageStream = getContentResolver().openInputStream(fileUri);
-            final int imageLength = imageStream.available();
-            final String imageName = ImageManager.UploadImage(imageStream, imageLength, getFilename());
-            System.out.println(imageName);
-/*
-            final Handler handler = new Handler();
-
-            Thread th = new Thread(new Runnable() {
-                public void run() {
-
-                    try {
-
-                        final String imageName = ImageManager.UploadImage(imageStream, imageLength);
-
-                        handler.post(new Runnable() {
-
-                            public void run() {
-                                Toast.makeText(CameraActivity.this, "Image Uploaded Successfully. Name = " + imageName, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                    catch(Exception ex) {
-                        final String exceptionMessage = ex.getMessage();
-                        handler.post(new Runnable() {
-                            public void run() {
-                                Toast.makeText(CameraActivity.this, exceptionMessage, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                }});
-            th.start();
-        }
-        catch(Exception ex) {
-
-            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-        */
-        } catch (Exception ex) {
-            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
 }

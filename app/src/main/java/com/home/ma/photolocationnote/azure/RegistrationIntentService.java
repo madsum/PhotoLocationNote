@@ -6,8 +6,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.android.gms.iid.InstanceID;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.home.ma.photolocationnote.MainActivity;
 import com.microsoft.windowsazure.messaging.NotificationHub;
 
@@ -21,6 +22,8 @@ public class RegistrationIntentService extends IntentService {
         super(TAG);
     }
 
+
+
     @Override
     protected void onHandleIntent(Intent intent) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -28,9 +31,20 @@ public class RegistrationIntentService extends IntentService {
         String regID = null;
 
         try {
-            InstanceID instanceID = InstanceID.getInstance(this);
-            String token = instanceID.getToken(NotificationSettings.SenderId,
-                    GoogleCloudMessaging.INSTANCE_ID_SCOPE);
+            final String[] token2 = new String[1];
+            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener( new OnSuccessListener<InstanceIdResult>() {
+                @Override
+                public void onSuccess(InstanceIdResult instanceIdResult) {
+                    token2[0] = instanceIdResult.getToken();
+                    // Do whatever you want with your token now
+                    // i.e. store it on SharedPreferences or DB
+                    // or directly send it to server
+                }
+            });
+
+            FirebaseInstanceId.getInstance().getInstanceId();
+            //InstanceID instanceID = InstanceID.getInstance(this);
+            String token =  token2[0];
             Log.i(TAG, "Got GCM Registration Token: " + token);
 
             // Storing the registration id that indicates whether the generated token has been

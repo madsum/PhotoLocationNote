@@ -399,8 +399,9 @@ public class NoteEditorActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if(id == R.id.nav_home) {
-            Intent intent = new Intent(this, MainActivity.class);
+        if(id == R.id.nav_azure_photo_list)
+        {
+            Intent intent = new Intent(this, AzurePhotoList.class);
             startActivity(intent);
         }
         else if(id == R.id.nav_location) {

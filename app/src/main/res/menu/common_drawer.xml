@@ -3,13 +3,17 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_home"
-            android:icon="@mipmap/ic_home_black_24dp"
-            android:title="Home" />
-        <item
             android:id="@+id/nav_location"
             android:icon="@mipmap/ic_my_location_black_24dp"
             android:title="Current location" />
+       <!-- <item
+            android:id="@+id/nav_home"
+            android:icon="@mipmap/ic_home_black_24dp"
+            android:title="Home" />-->
+        <item
+            android:id="@+id/nav_azure_photo_list"
+            android:icon="@mipmap/baseline_format_list_numbered_black_24"
+            android:title="Azure Photos" />
         <item
             android:id="@+id/nav_camera"
             android:icon="@drawable/ic_menu_camera"
