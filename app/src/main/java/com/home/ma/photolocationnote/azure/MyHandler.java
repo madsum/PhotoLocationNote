@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
+
+import com.home.ma.photolocationnote.AzurePhotoList;
 import com.home.ma.photolocationnote.MainActivity;
 import com.home.ma.photolocationnote.R;
 import com.home.ma.photolocationnote.utility.Utility;
@@ -31,7 +33,7 @@ public class MyHandler extends NotificationsHandler {
 
     private void sendNotification(String msg) {
 
-        Intent intent = new Intent(ctx, MainActivity.class);
+        Intent intent = new Intent(ctx, AzurePhotoList.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         mNotificationManager = (NotificationManager)
@@ -43,8 +45,8 @@ public class MyHandler extends NotificationsHandler {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(ctx)
-                        .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("Phonto Location Note")
+                        .setSmallIcon(R.mipmap.app_icon)
+                        .setContentTitle("Photo Location Note")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setSound(defaultSoundUri)

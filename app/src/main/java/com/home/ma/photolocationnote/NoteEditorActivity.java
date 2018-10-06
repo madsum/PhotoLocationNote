@@ -293,8 +293,8 @@ public class NoteEditorActivity extends AppCompatActivity
         values.put(NoteTable.COLUMN_DESCRIPTION, description);
         values.put(NoteTable.COLUMN_ADDRESS, address);
         values.put(NoteTable.COLUMN_IMAGE, mPhotoFileName);
-        values.put(NoteTable.COLUMN_LATITUDE, Globals.getLocation().getLatitude());
-        values.put(NoteTable.COLUMN_LONGITUDE, Globals.getLocation().getLongitude());
+        values.put(NoteTable.COLUMN_LATITUDE, Globals.getLocation() == null ? 0 : Globals.getLocation().getLatitude());
+        values.put(NoteTable.COLUMN_LONGITUDE, Globals.getLocation() == null ? 0 :  Globals.getLocation().getLongitude());
 
         if (noteUri == null) {
             // New note

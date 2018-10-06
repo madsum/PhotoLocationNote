@@ -58,7 +58,6 @@ import com.google.android.gms.tasks.Task;
 import com.home.ma.photolocationnote.azure.MyHandler;
 import com.home.ma.photolocationnote.azure.NotificationSettings;
 import com.home.ma.photolocationnote.azure.RegistrationIntentService;
-import com.home.ma.photolocationnote.http.HttpHandler;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 import org.apache.commons.lang3.StringUtils;

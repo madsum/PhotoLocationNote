@@ -12,7 +12,8 @@
 
     <permission
         android:name="com.home.ma.photolocationnote.permission.MAPS_RECEIVE"
-        android:protectionLevel="signature" />
+        android:protectionLevel="signature"
+        tools:ignore="UniquePermission" />
 
     <uses-permission android:name="com.home.ma.photolocationnote.permission.MAPS_RECEIVE" />
     <uses-permission android:name="com.google.android.providers.gsf.permisson.READ_GSERVICES" />
@@ -20,11 +21,13 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
-    <permission
+    <!--<permission
         android:name="com.home.ma.photolocationnote.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
+        android:protectionLevel="signature"
+        tools:ignore="UniquePermission" />-->
 
-    <uses-permission android:name="com.home.ma.photolocationnote.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.home.ma.photolocationnote.permission.C2D_MESSAGE"
+        android:protectionLevel="signature"/>
 
     <supports-screens
         android:largeScreens="true"
@@ -48,10 +51,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCpYDRBczRsWLWykq7wZXUkvY_Llaxb2ig" />
 
-        <activity
+       <!-- <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" />-->
 
         <meta-data
             android:name="com.google.android.gms.vision"
@@ -100,7 +103,6 @@
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-
                 <category android:name="com.home.ma.photolocationnote" />
             </intent-filter>
         </receiver>
