@@ -15,6 +15,8 @@ public class RegistrationIntentService extends IntentService {
 
     private static final String TAG = "RegIntentService";
 
+    private NotificationHub hub;
+
     public RegistrationIntentService() {
         super(TAG);
     }

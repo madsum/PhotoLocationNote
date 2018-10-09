@@ -5,27 +5,34 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Base64;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.home.ma.photolocationnote.azure.MyHandler;
 import com.home.ma.photolocationnote.azure.NotificationSettings;
+import com.home.ma.photolocationnote.azure.RegistrationIntentService;
+import com.home.ma.photolocationnote.utility.Globals;
 import com.home.ma.photolocationnote.utility.Utility;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
-
-import android.widget.TextView;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -37,6 +44,7 @@ import java.net.URLEncoder;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -50,6 +58,7 @@ public class MainActivity extends AppCompatActivity
     private String HubEndpoint = null;
     private String HubSasKeyName = null;
     private String HubSasKeyValue = null;
+    private GoogleCloudMessaging gcm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +80,36 @@ public class MainActivity extends AppCompatActivity
         mainActivity = this;
         // Register for push notification.
         NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, MyHandler.class);
-        globals.registerWithNotificationHubs();
+        registerWithNotificationHubs();
+
+    }
+
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Log.i(TAG, "This device is not supported by Google Play Services.");
+                ToastNotify("This device is not supported by Google Play Services.");
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public void registerWithNotificationHubs()
+    {
+        Log.i(TAG, " Registering with Notification Hubs");
+
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
     }
 
     @Override
@@ -87,7 +125,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-       // getMenuInflater().inflate(R.menu.main, menu);
+        // getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
@@ -302,7 +340,7 @@ public class MainActivity extends AppCompatActivity
     public void sendNotificationButtonOnClick(View v) {
         EditText notificationText = (EditText) findViewById(R.id.editTextNotificationMessage);
         String json = null;
-          if (Globals.getInstance(this).getmPhotoFilePath() != null && Utility.fileExist(Globals.getInstance(this).getmPhotoFilePath())) {
+        if (Globals.getInstance(this).getmPhotoFilePath() != null && Utility.fileExist(Globals.getInstance(this).getmPhotoFilePath())) {
             String[] splitPath = Globals.getInstance(this).getmPhotoFilePath().split("/");
             String fileName = splitPath[splitPath.length -1];
             json =  "{\"data\":{\"message\":\"" + fileName +"available in Azure blob storage!"  + "\"}}";
@@ -375,6 +413,5 @@ public class MainActivity extends AppCompatActivity
             }
         }.start();
     }
-
 
 }

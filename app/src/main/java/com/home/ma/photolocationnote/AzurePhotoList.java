@@ -3,7 +3,6 @@ package com.home.ma.photolocationnote;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
@@ -11,6 +10,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -18,10 +18,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.home.ma.photolocationnote.azure.ImageManager;
+import com.home.ma.photolocationnote.utility.Globals;
 import com.home.ma.photolocationnote.utility.NVP;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class  AzurePhotoList extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -29,7 +28,7 @@ public class  AzurePhotoList extends AppCompatActivity
     private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
     private String[] images;
     private ListView mListView;
-    private ArrayList<NVP> nameValuePairs = new ArrayList<NVP>();
+    private ArrayList<NVP> nameValuePairs = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -13,20 +13,20 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Base64;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -34,15 +34,19 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.home.ma.photolocationnote.azure.ImageManager;
 import com.home.ma.photolocationnote.azure.MyHandler;
 import com.home.ma.photolocationnote.azure.NotificationSettings;
 import com.home.ma.photolocationnote.azure.RegistrationIntentService;
-import com.home.ma.photolocationnote.contentProvider.NoteContentProvider;
+import com.home.ma.photolocationnote.database.NoteContentProvider;
 import com.home.ma.photolocationnote.database.NoteTable;
+import com.home.ma.photolocationnote.utility.Globals;
 import com.home.ma.photolocationnote.utility.Utility;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 import java.io.BufferedOutputStream;
@@ -70,8 +74,6 @@ public class NoteEditorActivity extends AppCompatActivity
     private String mPhotoFileName = null;
     private PopupWindow mPopupWindow = null;
     private Uri noteUri;
-    private double mLongitude = 0;
-    private double mLatitude = 0;
     private int mNoteTableUid = 0;
     private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -79,7 +81,11 @@ public class NoteEditorActivity extends AppCompatActivity
     private String HubSasKeyName = null;
     private String HubSasKeyValue = null;
     public static final String TAG = "photoLocationNote";
+    private Context context;
     private DrawerLayout drawer;
+    private MobileServiceClient mClient;
+    private MobileServiceTable<PhotoLocationNote> mToDoTable;
+    android.support.design.widget.CoordinatorLayout coordinatorLayout;
 
 
     @Override
@@ -89,8 +95,8 @@ public class NoteEditorActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
-         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        context = this;
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name) {
 
@@ -118,7 +124,7 @@ public class NoteEditorActivity extends AppCompatActivity
         drawer.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         initializeEditor(savedInstanceState);
@@ -126,8 +132,65 @@ public class NoteEditorActivity extends AppCompatActivity
         // Register for push notification.
         NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, MyHandler.class);
         registerWithNotificationHubs();
+
+       /* try {
+            mClient = new MobileServiceClient(
+                    "https://photolocationmobileapp.azurewebsites.net",
+                    this).withFilter(new ProgressFilter());
+
+            // Extend timeout from default of 10s to 20s
+            mClient.setAndroidHttpClientFactory(new OkHttpClientFactory() {
+                @Override
+                public OkHttpClient createOkHttpClient() {
+                    OkHttpClient client = new OkHttpClient();
+                    client.setReadTimeout(20, TimeUnit.SECONDS);
+                    client.setWriteTimeout(20, TimeUnit.SECONDS);
+                    return client;
+                }
+            });
+            mToDoTable = mClient.getTable(PhotoLocationNote.class);
+        }catch (MalformedURLException e) {
+            Toast.makeText(NoteEditorActivity.this, "There was an error creating the Mobile Service. Verify the URL", Toast.LENGTH_LONG ).show();
+        } catch (Exception e){
+            Toast.makeText(NoteEditorActivity.this, "Error", Toast.LENGTH_LONG ).show();
+        }*/
+        coordinatorLayout= findViewById(R.id.note_editor_CoordinatorLayout);
     }
 
+   /* private class ProgressFilter implements ServiceFilter {
+
+        @Override
+        public ListenableFuture<ServiceFilterResponse> handleRequest(ServiceFilterRequest request, NextServiceFilterCallback nextServiceFilterCallback) {
+
+            final SettableFuture<ServiceFilterResponse> resultFuture = SettableFuture.create();
+
+
+            ListenableFuture<ServiceFilterResponse> future = nextServiceFilterCallback.onNext(request);
+
+            Futures.addCallback(future, new FutureCallback<ServiceFilterResponse>() {
+                @Override
+                public void onFailure(Throwable e) {
+                    resultFuture.setException(e);
+                }
+
+                @Override
+                public void onSuccess(ServiceFilterResponse response) {
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            Toast.makeText(NoteEditorActivity.this, "Azure SQL filter set success!", Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                    resultFuture.set(response);
+                }
+            });
+
+            return resultFuture;
+        }
+    }
+*/
     private boolean checkPlayServices() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
@@ -155,6 +218,11 @@ public class NoteEditorActivity extends AppCompatActivity
             startService(intent);
         }
     }
+
+ /*   private class TodoItem{
+        public String Id;
+        public String Text;
+    };*/
 
 
     public void initializeEditor(Bundle savedInstanceState) {
@@ -236,7 +304,6 @@ public class NoteEditorActivity extends AppCompatActivity
                     getColumnIndexOrThrow(NoteTable.COLUMN_ADDRESS)));
             mPhotoFileName = cursor.getString(cursor.getColumnIndexOrThrow(NoteTable.COLUMN_IMAGE));
             if (mPhotoFileName != null) {
-                //mImagePath = imagePath;
                 mTvImageName.setText("Photo");
                 mTvImageName.setVisibility(View.VISIBLE);
             }
@@ -275,8 +342,6 @@ public class NoteEditorActivity extends AppCompatActivity
         String title = mEtNoteTitle.getText().toString();
         String description = mEtNoteDesc.getText().toString();
         String address = mEtNoteAddress.getText().toString();
-
-
         if (description.length() == 0) {
             description = "No description added";
         }
@@ -296,6 +361,7 @@ public class NoteEditorActivity extends AppCompatActivity
         values.put(NoteTable.COLUMN_LATITUDE, Globals.getLocation() == null ? 0 : Globals.getLocation().getLatitude());
         values.put(NoteTable.COLUMN_LONGITUDE, Globals.getLocation() == null ? 0 :  Globals.getLocation().getLongitude());
 
+
         if (noteUri == null) {
             // New note
             noteUri = getContentResolver().insert(NoteContentProvider.CONTENT_URI, values);
@@ -304,6 +370,7 @@ public class NoteEditorActivity extends AppCompatActivity
             getContentResolver().update(noteUri, values, null, null);
         }
     }
+
 
     @Override
     public void onBackPressed() {
@@ -322,10 +389,6 @@ public class NoteEditorActivity extends AppCompatActivity
         return true;
     }
 
-    private void stat(){
-        startActivity(new Intent(this, NoteListActivity.class));
-    }
-
     public static void hideKeyboard(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
         //Find the currently focused view, so we can grab the correct window token from it.
@@ -341,25 +404,9 @@ public class NoteEditorActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.editor_upload) {
-            if(mPhotoFileName == null){
-                hideKeyboard(this);
-                Toast.makeText(NoteEditorActivity.this, "No photo available to upload!", Toast.LENGTH_SHORT).show();
-            }else{
-                uploadPhoto();
-            }
-            setResult(RESULT_OK);
-           // Toast.makeText(NoteEditorActivity.this, "Photo uploaded successfully", Toast.LENGTH_SHORT).show();
-            //startActivity(new Intent(this, NoteListActivity.class));
-            //finish();
-            return true;
-        }
-
         if (id == R.id.editor_save) {
             saveNote();
-            setResult(RESULT_OK);
             startActivity(new Intent(this, NoteListActivity.class));
-            finish();
             return true;
         }
         else if (id == R.id.editor_delete) {
@@ -477,7 +524,7 @@ public class NoteEditorActivity extends AppCompatActivity
 
             final Handler handler = new Handler();
 
-           new Thread(() -> {
+            new Thread(() -> {
                 try {
 
                     final String imageName = ImageManager.UploadImage(imageStream, imageLength, photoFile.getName());
@@ -485,7 +532,7 @@ public class NoteEditorActivity extends AppCompatActivity
                     handler.post(new Runnable() {
 
                         public void run() {
-                           Toast.makeText(NoteEditorActivity.this, "Image Uploaded Successfully. Name = " + imageName, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(NoteEditorActivity.this, "Image Uploaded Successfully. Name = " + imageName, Toast.LENGTH_SHORT).show();
                             //Globals.getInstance(NoteEditorActivity.this).sendNotificationButtonOnClick(imageName+" is available in azure cloud!");
                             sendNotificationButtonOnClick(imageName+" is available in azure cloud!");
                         }
@@ -657,4 +704,106 @@ public class NoteEditorActivity extends AppCompatActivity
             }
         }.start();
     }
+
+    private class PhotoLocationNote{
+        @com.google.gson.annotations.SerializedName("id")
+        public String id;
+
+        @com.google.gson.annotations.SerializedName("title")
+        public String title;
+
+        @com.google.gson.annotations.SerializedName("description")
+        public String description;
+
+        @com.google.gson.annotations.SerializedName("date")
+        public String date;
+
+        @com.google.gson.annotations.SerializedName("latitude")
+        public double latitude;
+
+        @com.google.gson.annotations.SerializedName("longitude")
+        public double longitude;
+
+        @com.google.gson.annotations.SerializedName("address")
+        public String address;
+
+        @com.google.gson.annotations.SerializedName("image")
+        public String image;
+
+        public void setData(ContentValues values){
+            //id = values.getAsString(NoteTable.COLUMN_ID);
+            title = values.getAsString(NoteTable.COLUMN_TITLE);
+            description = values.getAsString(NoteTable.COLUMN_DESCRIPTION);
+            date = values.getAsString(NoteTable.COLUMN_DATE);
+            latitude = values.getAsDouble(NoteTable.COLUMN_LATITUDE);
+            longitude = values.getAsDouble(NoteTable.COLUMN_LONGITUDE);
+            address = values.getAsString(NoteTable.COLUMN_ADDRESS);
+            image = values.getAsString(NoteTable.COLUMN_IMAGE);
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public void setDate(String date) {
+            this.date = date;
+        }
+
+        public double getLatitude() {
+            return latitude;
+        }
+
+        public void setLatitude(double latitude) {
+            this.latitude = latitude;
+        }
+
+        public double getLongitude() {
+            return longitude;
+        }
+
+        public void setLongitude(double longitude) {
+            this.longitude = longitude;
+        }
+
+        public String getAddress() {
+            return address;
+        }
+
+        public void setAddress(String address) {
+            this.address = address;
+        }
+
+        public String getImage() {
+            return image;
+        }
+
+        public void setImage(String image) {
+            this.image = image;
+        }
+    };
 }
+

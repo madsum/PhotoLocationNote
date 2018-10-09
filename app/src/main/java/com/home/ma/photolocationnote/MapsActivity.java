@@ -54,10 +54,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Task;;
 import com.home.ma.photolocationnote.azure.MyHandler;
 import com.home.ma.photolocationnote.azure.NotificationSettings;
 import com.home.ma.photolocationnote.azure.RegistrationIntentService;
+import com.home.ma.photolocationnote.utility.Globals;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 import org.apache.commons.lang3.StringUtils;
@@ -72,7 +73,6 @@ public class MapsActivity extends AppCompatActivity implements
         GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
-    private final static int MY_PERMISSION_FINE_LOCATION = 101;
     private ZoomControls zoom;
     private Button satView;
     private Button clear;
@@ -80,15 +80,10 @@ public class MapsActivity extends AppCompatActivity implements
     private Double mLongitude = null;
     private LocationRequest mLocationRequest;
     private EditText etLocationEntry;
-    private Globals globals = Globals.getInstance(this);
-    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 111;
+
     private FusedLocationProviderClient mFusedLocationClient;
     private Location mLastLocation;
     LocationCallback mLocationCallback;
-
-    private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     public static final String TAG = "photoLocationNote";
 
@@ -133,7 +128,7 @@ public class MapsActivity extends AppCompatActivity implements
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
         if (resultCode != ConnectionResult.SUCCESS) {
             if (apiAvailability.isUserResolvableError(resultCode)) {
-                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                apiAvailability.getErrorDialog(this, resultCode, Globals.PLAY_SERVICES_RESOLUTION_REQUEST)
                         .show();
             } else {
                 Log.i(TAG, "This device is not supported by Google Play Services.");
@@ -238,7 +233,7 @@ public class MapsActivity extends AppCompatActivity implements
     private void startLocationPermissionRequest() {
         ActivityCompat.requestPermissions(MapsActivity.this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                REQUEST_PERMISSIONS_REQUEST_CODE);
+                Globals.REQUEST_PERMISSIONS_REQUEST_CODE);
     }
 
     @SuppressWarnings("MissingPermission")
@@ -257,7 +252,7 @@ public class MapsActivity extends AppCompatActivity implements
                             mMap.moveCamera(CameraUpdateFactory.newLatLng(myPlace));
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myPlace, 18.0f));
                             mMap.setMyLocationEnabled(true);
-                            globals.setLocation(mLastLocation);
+                            Globals.getInstance().setLocation(mLastLocation);
                             // as soon as we get location, I tired to find local address
                             getFullAddress();
                         } else {
@@ -381,11 +376,11 @@ public class MapsActivity extends AppCompatActivity implements
             case REQUEST_CHECK_SETTINGS:
                 switch (resultCode) {
                     case Activity.RESULT_OK:
-                        Log.i(globals.TAG, "User agreed to make required location settings changes.");
+                        Log.i(Globals.TAG, "User agreed to make required location settings changes.");
                         getLastLocation();
                         break;
                     case Activity.RESULT_CANCELED:
-                        Log.i(globals.TAG, "User chose not to make required location settings changes.");
+                        Log.i(Globals.TAG, "User chose not to make required location settings changes.");
                         Toast.makeText(this, "Current address won't be located", Toast.LENGTH_LONG).show();
                         break;
                 }
@@ -419,7 +414,7 @@ public class MapsActivity extends AppCompatActivity implements
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST_CODE);
+                    Globals.LOCATION_PERMISSION_REQUEST_CODE);
         } else if (mMap != null) {
             mMap.setMyLocationEnabled(true);
         }
@@ -433,7 +428,7 @@ public class MapsActivity extends AppCompatActivity implements
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case LOCATION_PERMISSION_REQUEST_CODE:
+            case Globals.LOCATION_PERMISSION_REQUEST_CODE:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     enableMyLocationIfPermitted();
@@ -441,7 +436,7 @@ public class MapsActivity extends AppCompatActivity implements
                     showDefaultLocation();
                 }
                 break;
-            case MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE:
+            case Globals.MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE:
 
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -455,13 +450,13 @@ public class MapsActivity extends AppCompatActivity implements
         }
     }
 
-        private void showDefaultLocation() {
-            Toast.makeText(this, "Location permission not granted, " +
-                            "showing default location",
-                    Toast.LENGTH_SHORT).show();
-            LatLng espoo = new LatLng(60.205490, 24.655899);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(espoo));
-        }
+    private void showDefaultLocation() {
+        Toast.makeText(this, "Location permission not granted, " +
+                        "showing default location",
+                Toast.LENGTH_SHORT).show();
+        LatLng espoo = new LatLng(60.205490, 24.655899);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(espoo));
+    }
 
 
     private void getFullAddress() {
@@ -478,9 +473,9 @@ public class MapsActivity extends AppCompatActivity implements
         // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
         String address = addresses.get(0).getAddressLine(0);
         if(StringUtils.isNotEmpty(address)){
-            globals.setTotalAddress(address);
+            Globals.setTotalAddress(address);
         }else{
-            globals.setTotalAddress("No address");
+            Globals.setTotalAddress("No address");
         }
     }
 
@@ -538,9 +533,9 @@ public class MapsActivity extends AppCompatActivity implements
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-       /* if(id == R.id.nav_home)
+        /*if(id == R.id.nav_home)
         {
-            Intent intent = new Intent(this, AzurePhotoList.class);
+            Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }*/
         if(id == R.id.nav_azure_photo_list)
@@ -557,13 +552,13 @@ public class MapsActivity extends AppCompatActivity implements
         } else if (id == R.id.nav_gallery) {
             if(ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
-               Globals.openGallery(this);
+                Globals.openGallery(this);
             }else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if(shouldShowRequestPermissionRationale(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)){
                         Toast.makeText(this, "External storage permission is required to open Gallery", Toast.LENGTH_LONG).show();
                     }
-                    requestPermissions(new String[] {android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
+                    requestPermissions(new String[] {android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, Globals.MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
                 }else {
                     Globals.openGallery(this);
                 }

@@ -6,7 +6,7 @@ android {
     buildToolsVersion '28.0.2'
     defaultConfig {
         applicationId "com.home.ma.photolocationnote"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 27
         versionCode 6
         versionName "6.0"
@@ -31,9 +31,6 @@ android {
     }
     useLibrary 'org.apache.http.legacy'
     packagingOptions {
-        //pickFirst 'org.apache.http.*'
-       // pickFirst 'org.apache.http.NameValuePair'
-       // pickFirst 'org.apache.http.message.BasicNameValuePair'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
@@ -58,20 +55,23 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.0'
     implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation 'com.google.android.gms:play-services-analytics:16.0.0'
-    implementation 'com.google.android.gms:play-services-maps:15.0.1'
-    implementation 'com.google.android.gms:play-services-location:15.0.1'
-    implementation 'com.google.android.gms:play-services-gcm:15.0.1'
+    implementation 'com.google.android.gms:play-services-maps:16.0.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.google.android.gms:play-services-gcm:16.0.0'
     implementation 'com.microsoft.azure:notification-hubs-android-sdk:0.4@aar'
     implementation 'com.microsoft.azure:azure-notifications-handler:1.0.1@aar'
+    implementation 'com.microsoft.azure:azure-mobile-android:3.2.0@aar'
+    implementation 'com.squareup.okhttp:okhttp:2.5.0'
     implementation 'com.google.http-client:google-http-client-android:+'
     implementation 'com.google.api-client:google-api-client-android:+'
     implementation 'com.google.api-client:google-api-client-gson:+'
 
     testImplementation 'junit:junit:4.12'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.google.guava:guava:18.0'
+    implementation 'com.squareup.okhttp:okhttp:2.5.0'
+    implementation 'com.microsoft.azure:azure-mobile-android:3.2.0@aar'
 }
 
-repositories {
-    maven {
-        url "http://dl.bintray.com/microsoftazuremobile/SDK"
-    }
-}
+//apply plugin: 'com.google.gms.google-services'

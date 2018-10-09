@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 
 /**
@@ -39,6 +41,9 @@ public class Utility {
     }
 
     public static boolean deleteFile(String path){
+        if(StringUtils.isEmpty(path)){
+            return false;
+        }
         File deleteFile = new File(path);
         if(deleteFile.exists()){
             deleteFile.delete();
@@ -49,9 +54,13 @@ public class Utility {
     }
 
     public static boolean fileExist(String path){
-        File file = new File(path);
-        if(file.exists()){
-            return true;
+        if(path != null){
+            File file = new File(path);
+            if(file.exists()){
+                return true;
+            }else{
+                return false;
+            }
         }else{
             return false;
         }

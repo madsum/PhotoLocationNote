@@ -3,7 +3,7 @@ package com.home.ma.photolocationnote.database;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.home.ma.photolocationnote.Globals;
+import com.home.ma.photolocationnote.utility.Globals;
 
 public class NoteTable {
 

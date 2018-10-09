@@ -3,13 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context="com.home.ma.photolocationnote.NoteEditorActivity">
 
     <item
-        android:id="@+id/editor_upload"
-        android:orderInCategory="200"
-        android:title="upload"
-        app:showAsAction="ifRoom"
-        android:icon="@mipmap/baseline_cloud_upload_white_48" />
-
-    <item
         android:id="@+id/editor_save"
         android:orderInCategory="200"
         android:title="save"

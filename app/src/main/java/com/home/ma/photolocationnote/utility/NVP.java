@@ -33,8 +33,6 @@ public class NVP implements NameValuePair, Serializable {
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.writeObject(nvp.getName());
         out.writeObject(nvp.getValue());
-      //  out.writeString(nvp.getName());
-      //  out.writeString(nvp.getValue());
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {

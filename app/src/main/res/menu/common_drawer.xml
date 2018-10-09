@@ -5,7 +5,7 @@
         <item
             android:id="@+id/nav_location"
             android:icon="@mipmap/ic_my_location_black_24dp"
-            android:title="Current location" />
+            android:title="Current Location" />
         <!-- <item
              android:id="@+id/nav_home"
              android:icon="@mipmap/ic_home_black_24dp"
@@ -17,7 +17,7 @@
         <item
             android:id="@+id/nav_notepad"
             android:icon="@mipmap/ic_note_add_black_24dp"
-            android:title="Note" />
+            android:title="New Note" />
         <item
             android:id="@+id/nav_noteList"
             android:icon="@drawable/ic_view_list_black_24dp"
@@ -25,7 +25,7 @@
         <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:title="Local Gallery" />
         <item
             android:id="@+id/nav_azure_photo_list"
             android:icon="@drawable/ic_menu_azure_photo_list"

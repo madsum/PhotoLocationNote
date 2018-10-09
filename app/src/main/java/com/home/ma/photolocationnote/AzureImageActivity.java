@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -15,12 +14,12 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.home.ma.photolocationnote.azure.ImageManager;
+import com.home.ma.photolocationnote.utility.Globals;
 import com.home.ma.photolocationnote.utility.NVP;
 
 import java.io.ByteArrayOutputStream;
@@ -111,6 +110,11 @@ public class AzureImageActivity extends AppCompatActivity implements NavigationV
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        /*if(id == R.id.nav_home)
+        {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }*/
         if(id == R.id.nav_azure_photo_list)
         {
             Intent intent = new Intent(this, AzurePhotoList.class);

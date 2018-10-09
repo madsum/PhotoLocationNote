@@ -4,17 +4,14 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
 
 import com.home.ma.photolocationnote.AzurePhotoList;
 import com.home.ma.photolocationnote.MainActivity;
 import com.home.ma.photolocationnote.R;
-import com.home.ma.photolocationnote.utility.Utility;
 import com.microsoft.windowsazure.notifications.NotificationsHandler;
 
 public class MyHandler extends NotificationsHandler {
@@ -28,7 +25,9 @@ public class MyHandler extends NotificationsHandler {
         ctx = context;
         String nhMessage = bundle.getString("message");
         sendNotification(nhMessage);
-        Toast.makeText(context, nhMessage, Toast.LENGTH_LONG).show();
+        if (MainActivity.isVisible) {
+            MainActivity.mainActivity.ToastNotify(nhMessage);
+        }
     }
 
     private void sendNotification(String msg) {

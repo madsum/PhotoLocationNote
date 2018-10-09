@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingTop="65dp"
+    android:id="@+id/note_editor"
     tools:context="com.home.ma.photolocationnote.NoteEditorActivity">
 
 

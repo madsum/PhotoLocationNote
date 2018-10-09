@@ -1,6 +1,5 @@
 package com.home.ma.photolocationnote;
 
-import android.*;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
@@ -12,29 +11,22 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.StrictMode;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.home.ma.photolocationnote.azure.ImageManager;
+import com.home.ma.photolocationnote.utility.Globals;
 import com.home.ma.photolocationnote.utility.Utility;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.security.Permission;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -120,7 +112,7 @@ public class CameraActivity extends Activity {
         }else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if(shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
-                   Toast.makeText(this, "External storage permission is required to save photo", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "External storage permission is required to save photo", Toast.LENGTH_LONG).show();
                 }
                 requestPermissions(new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_EXTERNAL_PERMISSION_RESULT);
             }else {
@@ -142,7 +134,7 @@ public class CameraActivity extends Activity {
         }
     }
 
-     //Here we store the file url as it will be null after returning from camera app
+    //Here we store the file url as it will be null after returning from camera app
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -160,7 +152,7 @@ public class CameraActivity extends Activity {
     }
 
 
-     //Receiving activity result method will be called after closing the camera
+    //Receiving activity result method will be called after closing the camera
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // if the result is capturing Image
@@ -224,7 +216,6 @@ public class CameraActivity extends Activity {
     }
 
     private void populatePhotoInGallery(String path) {
-        //UploadImage();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             final Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             final Uri contentUri = Uri.fromFile(new File(path));
@@ -265,50 +256,7 @@ public class CameraActivity extends Activity {
     }
 
     private String getFilename(){
-       return mediaFile.getAbsoluteFile().getName();
+        return mediaFile.getAbsoluteFile().getName();
     }
 
-    private void UploadImage(){
-        try {
-            final InputStream imageStream = getContentResolver().openInputStream(fileUri);
-            final int imageLength = imageStream.available();
-            final String imageName = ImageManager.UploadImage(imageStream, imageLength, getFilename());
-            System.out.println(imageName);
-/*
-            final Handler handler = new Handler();
-
-            Thread th = new Thread(new Runnable() {
-                public void run() {
-
-                    try {
-
-                        final String imageName = ImageManager.UploadImage(imageStream, imageLength);
-
-                        handler.post(new Runnable() {
-
-                            public void run() {
-                                Toast.makeText(CameraActivity.this, "Image Uploaded Successfully. Name = " + imageName, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                    catch(Exception ex) {
-                        final String exceptionMessage = ex.getMessage();
-                        handler.post(new Runnable() {
-                            public void run() {
-                                Toast.makeText(CameraActivity.this, exceptionMessage, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                }});
-            th.start();
-        }
-        catch(Exception ex) {
-
-            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-        */
-        } catch (Exception ex) {
-            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
 }

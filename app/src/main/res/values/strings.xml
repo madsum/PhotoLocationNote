@@ -12,4 +12,5 @@
     <string name="title_activity_note_list">All Notes</string>
     <string name="send_button">Send Notification</string>
     <string name="notification_message_hint">Enter notification message text</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>
