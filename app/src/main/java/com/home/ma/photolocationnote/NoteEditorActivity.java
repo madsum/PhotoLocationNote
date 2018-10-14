@@ -1,6 +1,5 @@
 package com.home.ma.photolocationnote;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +10,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -21,7 +19,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -37,7 +34,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.home.ma.photolocationnote.azure.ImageManager;
 import com.home.ma.photolocationnote.azure.MyHandler;
 import com.home.ma.photolocationnote.azure.NotificationSettings;
 import com.home.ma.photolocationnote.azure.RegistrationIntentService;
@@ -45,23 +41,9 @@ import com.home.ma.photolocationnote.database.NoteContentProvider;
 import com.home.ma.photolocationnote.database.NoteTable;
 import com.home.ma.photolocationnote.utility.Globals;
 import com.home.ma.photolocationnote.utility.Utility;
-import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Calendar;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 public class NoteEditorActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -83,10 +65,6 @@ public class NoteEditorActivity extends AppCompatActivity
     public static final String TAG = "photoLocationNote";
     private Context context;
     private DrawerLayout drawer;
-    private MobileServiceClient mClient;
-    private MobileServiceTable<PhotoLocationNote> mToDoTable;
-    android.support.design.widget.CoordinatorLayout coordinatorLayout;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,65 +110,8 @@ public class NoteEditorActivity extends AppCompatActivity
         // Register for push notification.
         NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, MyHandler.class);
         registerWithNotificationHubs();
-
-       /* try {
-            mClient = new MobileServiceClient(
-                    "https://photolocationmobileapp.azurewebsites.net",
-                    this).withFilter(new ProgressFilter());
-
-            // Extend timeout from default of 10s to 20s
-            mClient.setAndroidHttpClientFactory(new OkHttpClientFactory() {
-                @Override
-                public OkHttpClient createOkHttpClient() {
-                    OkHttpClient client = new OkHttpClient();
-                    client.setReadTimeout(20, TimeUnit.SECONDS);
-                    client.setWriteTimeout(20, TimeUnit.SECONDS);
-                    return client;
-                }
-            });
-            mToDoTable = mClient.getTable(PhotoLocationNote.class);
-        }catch (MalformedURLException e) {
-            Toast.makeText(NoteEditorActivity.this, "There was an error creating the Mobile Service. Verify the URL", Toast.LENGTH_LONG ).show();
-        } catch (Exception e){
-            Toast.makeText(NoteEditorActivity.this, "Error", Toast.LENGTH_LONG ).show();
-        }*/
-        coordinatorLayout= findViewById(R.id.note_editor_CoordinatorLayout);
     }
 
-   /* private class ProgressFilter implements ServiceFilter {
-
-        @Override
-        public ListenableFuture<ServiceFilterResponse> handleRequest(ServiceFilterRequest request, NextServiceFilterCallback nextServiceFilterCallback) {
-
-            final SettableFuture<ServiceFilterResponse> resultFuture = SettableFuture.create();
-
-
-            ListenableFuture<ServiceFilterResponse> future = nextServiceFilterCallback.onNext(request);
-
-            Futures.addCallback(future, new FutureCallback<ServiceFilterResponse>() {
-                @Override
-                public void onFailure(Throwable e) {
-                    resultFuture.setException(e);
-                }
-
-                @Override
-                public void onSuccess(ServiceFilterResponse response) {
-                    runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            Toast.makeText(NoteEditorActivity.this, "Azure SQL filter set success!", Toast.LENGTH_LONG).show();
-                        }
-                    });
-
-                    resultFuture.set(response);
-                }
-            });
-
-            return resultFuture;
-        }
-    }
-*/
     private boolean checkPlayServices() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
@@ -218,11 +139,6 @@ public class NoteEditorActivity extends AppCompatActivity
             startService(intent);
         }
     }
-
- /*   private class TodoItem{
-        public String Id;
-        public String Text;
-    };*/
 
 
     public void initializeEditor(Bundle savedInstanceState) {
@@ -389,17 +305,6 @@ public class NoteEditorActivity extends AppCompatActivity
         return true;
     }
 
-    public static void hideKeyboard(Activity activity) {
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
-        View view = activity.getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
-        if (view == null) {
-            view = new View(activity);
-        }
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -510,300 +415,5 @@ public class NoteEditorActivity extends AppCompatActivity
                 break;
         }
     }
-
-    private void uploadPhoto()
-    {
-        try {
-            final File photoFile = new File(mPhotoFileName);
-            if(photoFile == null){
-                Toast.makeText(NoteEditorActivity.this, "File not found", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            final InputStream imageStream = getContentResolver().openInputStream(Uri.fromFile(photoFile));
-            final int imageLength = imageStream.available();
-
-            final Handler handler = new Handler();
-
-            new Thread(() -> {
-                try {
-
-                    final String imageName = ImageManager.UploadImage(imageStream, imageLength, photoFile.getName());
-
-                    handler.post(new Runnable() {
-
-                        public void run() {
-                            Toast.makeText(NoteEditorActivity.this, "Image Uploaded Successfully. Name = " + imageName, Toast.LENGTH_SHORT).show();
-                            //Globals.getInstance(NoteEditorActivity.this).sendNotificationButtonOnClick(imageName+" is available in azure cloud!");
-                            sendNotificationButtonOnClick(imageName+" is available in azure cloud!");
-                        }
-                    });
-                }
-                catch(Exception ex) {
-                    final String exceptionMessage = ex.getMessage();
-                    handler.post(new Runnable() {
-                        public void run() {
-                            Toast.makeText(NoteEditorActivity.this, exceptionMessage, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }).start();
-            //th.start();
-        }
-        catch(Exception ex) {
-
-            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * Example code from http://msdn.microsoft.com/library/azure/dn495627.aspx
-     * to parse the connection string so a SaS authentication token can be
-     * constructed.
-     *
-     * @param connectionString This must be the DefaultFullSharedAccess connection
-     *                         string for this example.
-     */
-    private void ParseConnectionString(String connectionString)
-    {
-        String[] parts = connectionString.split(";");
-        if (parts.length != 3)
-            throw new RuntimeException("Error parsing connection string: "
-                    + connectionString);
-
-        for (int i = 0; i < parts.length; i++) {
-            if (parts[i].startsWith("Endpoint")) {
-                this.HubEndpoint = "https" + parts[i].substring(11);
-            } else if (parts[i].startsWith("SharedAccessKeyName")) {
-                this.HubSasKeyName = parts[i].substring(20);
-            } else if (parts[i].startsWith("SharedAccessKey")) {
-                this.HubSasKeyValue = parts[i].substring(16);
-            }
-        }
-    }
-
-
-    /**
-     * Example code from http://msdn.microsoft.com/library/azure/dn495627.aspx to
-     * construct a SaS token from the access key to authenticate a request.
-     *
-     * @param uri The unencoded resource URI string for this operation. The resource
-     *            URI is the full URI of the Service Bus resource to which access is
-     *            claimed. For example,
-     *            "http://<namespace>.servicebus.windows.net/<hubName>"
-     */
-    private String generateSasToken(String uri) {
-
-        String targetUri;
-        String token = null;
-        try {
-            targetUri = URLEncoder
-                    .encode(uri.toString().toLowerCase(), "UTF-8")
-                    .toLowerCase();
-
-            long expiresOnDate = System.currentTimeMillis();
-            int expiresInMins = 60; // 1 hour
-            expiresOnDate += expiresInMins * 60 * 1000;
-            long expires = expiresOnDate / 1000;
-            String toSign = targetUri + "\n" + expires;
-
-            // Get an hmac_sha1 key from the raw key bytes
-            byte[] keyBytes = HubSasKeyValue.getBytes("UTF-8");
-            SecretKeySpec signingKey = new SecretKeySpec(keyBytes, "HmacSHA256");
-
-            // Get an hmac_sha1 Mac instance and initialize with the signing key
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(signingKey);
-
-            // Compute the hmac on input data bytes
-            byte[] rawHmac = mac.doFinal(toSign.getBytes("UTF-8"));
-
-            // Using android.util.Base64 for Android Studio instead of
-            // Apache commons codec
-            String signature = URLEncoder.encode(
-                    Base64.encodeToString(rawHmac, Base64.NO_WRAP).toString(), "UTF-8");
-
-            // Construct authorization string
-            token = "SharedAccessSignature sr=" + targetUri + "&sig="
-                    + signature + "&se=" + expires + "&skn=" + HubSasKeyName;
-        } catch (Exception e) {
-            {
-                Toast.makeText(NoteEditorActivity.this, "Exception Generating SaS : " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        return token;
-    }
-
-    /**
-     * Send Notification button click handler. This method parses the
-     * DefaultFullSharedAccess connection string and generates a SaS token. The
-     * token is added to the Authorization header on the POST request to the
-     * notification hub. The text in the editTextNotificationMessage control
-     * is added as the JSON body for the request to add a GCM message to the hub.
-     */
-    public void sendNotificationButtonOnClick(String pushMsg) {
-        final String json = "{\"data\":{\"message\":\"" + pushMsg + "\"}}";
-
-        new Thread()
-        {
-            public void run()
-            {
-                try
-                {
-                    // Based on reference documentation...
-                    // http://msdn.microsoft.com/library/azure/dn223273.aspx
-                    ParseConnectionString(NotificationSettings.HubFullAccessString);
-                    URL url = new URL(HubEndpoint + NotificationSettings.HubName +
-                            "/messages/?api-version=2015-01");
-
-                    HttpURLConnection urlConnection = (HttpURLConnection)url.openConnection();
-
-                    try {
-                        // POST request
-                        urlConnection.setDoOutput(true);
-
-                        // Authenticate the POST request with the SaS token
-                        urlConnection.setRequestProperty("Authorization",
-                                generateSasToken(url.toString()));
-
-                        // Notification format should be GCM
-                        urlConnection.setRequestProperty("ServiceBusNotification-Format", "gcm");
-
-                        // Include any tags
-                        // Example below targets 3 specific tags
-                        // Refer to : https://azure.microsoft.com/en-us/documentation/articles/notification-hubs-routing-tag-expressions/
-                        // urlConnection.setRequestProperty("ServiceBusNotification-Tags",
-                        //        "tag1 || tag2 || tag3");
-
-                        // Send notification message
-                        urlConnection.setFixedLengthStreamingMode(json.length());
-                        OutputStream bodyStream = new BufferedOutputStream(urlConnection.getOutputStream());
-                        bodyStream.write(json.getBytes());
-                        bodyStream.close();
-
-                        // Get reponse
-                        urlConnection.connect();
-                        int responseCode = urlConnection.getResponseCode();
-                        if ((responseCode != 200) && (responseCode != 201)) {
-                            BufferedReader br = new BufferedReader(new InputStreamReader((urlConnection.getErrorStream())));
-                            String line;
-                            StringBuilder builder = new StringBuilder("Send Notification returned " +
-                                    responseCode + " : ")  ;
-                            while ((line = br.readLine()) != null) {
-                                builder.append(line);
-                            }
-                            Toast.makeText(NoteEditorActivity.this, builder.toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    } finally {
-                        urlConnection.disconnect();
-                    }
-                }
-                catch(Exception e) {
-                    Toast.makeText(NoteEditorActivity.this, "Exception Sending Notification : " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        }.start();
-    }
-
-    private class PhotoLocationNote{
-        @com.google.gson.annotations.SerializedName("id")
-        public String id;
-
-        @com.google.gson.annotations.SerializedName("title")
-        public String title;
-
-        @com.google.gson.annotations.SerializedName("description")
-        public String description;
-
-        @com.google.gson.annotations.SerializedName("date")
-        public String date;
-
-        @com.google.gson.annotations.SerializedName("latitude")
-        public double latitude;
-
-        @com.google.gson.annotations.SerializedName("longitude")
-        public double longitude;
-
-        @com.google.gson.annotations.SerializedName("address")
-        public String address;
-
-        @com.google.gson.annotations.SerializedName("image")
-        public String image;
-
-        public void setData(ContentValues values){
-            //id = values.getAsString(NoteTable.COLUMN_ID);
-            title = values.getAsString(NoteTable.COLUMN_TITLE);
-            description = values.getAsString(NoteTable.COLUMN_DESCRIPTION);
-            date = values.getAsString(NoteTable.COLUMN_DATE);
-            latitude = values.getAsDouble(NoteTable.COLUMN_LATITUDE);
-            longitude = values.getAsDouble(NoteTable.COLUMN_LONGITUDE);
-            address = values.getAsString(NoteTable.COLUMN_ADDRESS);
-            image = values.getAsString(NoteTable.COLUMN_IMAGE);
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public String getDate() {
-            return date;
-        }
-
-        public void setDate(String date) {
-            this.date = date;
-        }
-
-        public double getLatitude() {
-            return latitude;
-        }
-
-        public void setLatitude(double latitude) {
-            this.latitude = latitude;
-        }
-
-        public double getLongitude() {
-            return longitude;
-        }
-
-        public void setLongitude(double longitude) {
-            this.longitude = longitude;
-        }
-
-        public String getAddress() {
-            return address;
-        }
-
-        public void setAddress(String address) {
-            this.address = address;
-        }
-
-        public String getImage() {
-            return image;
-        }
-
-        public void setImage(String image) {
-            this.image = image;
-        }
-    };
 }
 

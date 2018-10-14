@@ -255,8 +255,4 @@ public class CameraActivity extends Activity {
         return mediaFile;
     }
 
-    private String getFilename(){
-        return mediaFile.getAbsoluteFile().getName();
-    }
-
 }

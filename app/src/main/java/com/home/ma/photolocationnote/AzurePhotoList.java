@@ -80,8 +80,6 @@ public class  AzurePhotoList extends AppCompatActivity
                         AzurePhotoList.this.images = images;
                         ArrayAdapter<String> adapter = new ArrayAdapter<String>(AzurePhotoList.this,
                                 android.R.layout.simple_list_item_1, android.R.id.text1, images);
-                        /*ArrayAdapter<String> adapter = new ArrayAdapter<String>(AzurePhotoList.this,
-                                R.layout.content_azure_photo_list,R.id.azure_list_item_name, images);*/
                         mListView.setAdapter(adapter);
                     });
                 }

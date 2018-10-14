@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Handler;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -21,7 +21,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
 import android.util.Log;
@@ -192,9 +191,6 @@ public class NoteListActivity extends AppCompatActivity
             case UPLOAD_ID:
                 AdapterView.AdapterContextMenuInfo info2 = (AdapterView.AdapterContextMenuInfo) item
                         .getMenuInfo();
-               // Uri uri2 = Uri.parse(NoteContentProvider.CONTENT_URI + "/" + info.id);
-                //getContentResolver().query(uri, )
-                //fillData();
                 startProgressDialog();
                 getSelectedItem(info2.id);
                 return true;

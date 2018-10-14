@@ -98,6 +98,7 @@ public class MapsActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        setTitle("Current Location");
         // All toolbar and drawer code.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -117,15 +118,12 @@ public class MapsActivity extends AppCompatActivity implements
         if( isConnected(this)){
             // initialise map
             mapUIInitialise();
-
             // Register for push notification.
             NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, MyHandler.class);
             registerWithNotificationHubs();
         }else{
             showDataSettingDialog();
-            //finish();
         }
-        setTitle("Current Location");
     }
 
     private boolean checkPlayServices() {
