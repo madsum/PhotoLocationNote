@@ -17,7 +17,6 @@
 
     <uses-permission android:name="com.home.ma.photolocationnote.permission.MAPS_RECEIVE" />
     <uses-permission android:name="com.google.android.providers.gsf.permisson.READ_GSERVICES" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
@@ -77,7 +76,7 @@
         <provider
             android:name="com.home.ma.photolocationnote.database.NoteContentProvider"
             android:authorities="authorities.photolocationnote.contentprovider"
-            android:exported="true" />
+            android:exported="false" />
 
         <activity
             android:name="com.home.ma.photolocationnote.NoteListActivity"
