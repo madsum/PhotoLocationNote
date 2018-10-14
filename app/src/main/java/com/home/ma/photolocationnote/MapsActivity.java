@@ -114,13 +114,18 @@ public class MapsActivity extends AppCompatActivity implements
         mapFragment.getMapAsync(this);
 
         // check is it connected to wifi or mobile data
-        isConnected(this);
-        // initialise map
-        mapUIInitialise();
+        if( isConnected(this)){
+            // initialise map
+            mapUIInitialise();
 
-        // Register for push notification.
-        NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, MyHandler.class);
-        registerWithNotificationHubs();
+            // Register for push notification.
+            NotificationsManager.handleNotifications(this, NotificationSettings.SenderId, MyHandler.class);
+            registerWithNotificationHubs();
+        }else{
+            showDataSettingDialog();
+            //finish();
+        }
+        setTitle("Current Location");
     }
 
     private boolean checkPlayServices() {
@@ -271,7 +276,6 @@ public class MapsActivity extends AppCompatActivity implements
         if ((wifiInfo != null && wifiInfo.isConnected()) || (mobileInfo != null && mobileInfo.isConnected())) {
             return true;
         } else {
-            showDataSettingDialog();
             return false;
         }
     }
@@ -279,16 +283,18 @@ public class MapsActivity extends AppCompatActivity implements
     private  void showDataSettingDialog()
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Connect to internet")
+        builder.setMessage("Please connect to internet. Then restart the app.")
                 .setCancelable(false)
                 .setPositiveButton("WIFI enable", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                        finish();
                     }
                 })
                 .setNegativeButton("Mobile data enable", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         startActivity(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS));
+                        finish();
                     }
                 });
         AlertDialog alert = builder.create();
