@@ -12,6 +12,7 @@ import java.util.LinkedList;
 
 public class ImageManager {
 
+    // storage account connection string
     public static final String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=photolocation;"+
             "AccountKey=DbafKFK4nzlOZRpEMo7UlOuPhEAsPBuY+Go51pk0LCC1nHYqlT9ZLK9lsemlCZY8L+MwpWahv09l3N8wJs+NLA==;"+
             "EndpointSuffix=core.windows.net";
@@ -23,8 +24,7 @@ public class ImageManager {
                     .parse(storageConnectionString);
             // Create the blob client.
             CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
-            // Get a reference to a container.
-            // The container name must be lower case
+            // Get a reference to a container. The container name must be lower case
             CloudBlobContainer container = blobClient.getContainerReference("images");
             return container;
         }catch (Exception ex){
@@ -33,7 +33,9 @@ public class ImageManager {
         return null;
     }
 
-    public static String UploadImage(InputStream image, int imageLength, String imageName ) throws Exception {
+    // upload an image
+    public static String UploadImage(InputStream image, int imageLength, String imageName )
+            throws Exception {
         CloudBlobContainer container = getContainer();
         container.createIfNotExists();
         CloudBlockBlob imageBlob = container.getBlockBlobReference(imageName);
@@ -41,31 +43,24 @@ public class ImageManager {
         return imageName;
     }
 
+    // get all image name from the Azure blob
     public static String[] ListImages() throws Exception{
         CloudBlobContainer container = getContainer();
-
         Iterable<ListBlobItem> blobs = container.listBlobs();
-
         LinkedList<String> blobNames = new LinkedList<>();
         for(ListBlobItem blob: blobs) {
             blobNames.add(((CloudBlockBlob) blob).getName());
         }
-
         return blobNames.toArray(new String[blobNames.size()]);
     }
 
+    // get an image base on the given image name
     public static void GetImage(String name, OutputStream imageStream, long imageLength) throws Exception {
         CloudBlobContainer container = getContainer();
-
         CloudBlockBlob blob = container.getBlockBlobReference(name);
-
         if(blob.exists()){
             blob.downloadAttributes();
-
-            imageLength = blob.getProperties().getLength();
-
             blob.download(imageStream);
         }
     }
-
 }
