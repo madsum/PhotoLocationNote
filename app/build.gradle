@@ -71,13 +71,9 @@ dependencies {
     implementation 'com.google.http-client:google-http-client-android:+'
     implementation 'com.google.api-client:google-api-client-android:+'
     implementation 'com.google.api-client:google-api-client-gson:+'
-
     testImplementation 'junit:junit:4.12'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.google.guava:guava:18.0'
-    implementation 'com.squareup.okhttp:okhttp:2.5.0'
-    implementation 'com.microsoft.azure:azure-mobile-android:3.2.0@aar'
 }
 
 //apply plugin: 'com.google.gms.google-services'
