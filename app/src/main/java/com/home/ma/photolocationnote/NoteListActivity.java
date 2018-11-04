@@ -76,7 +76,7 @@ public class NoteListActivity extends AppCompatActivity
     private SimpleCursorAdapter mAdapter;
     private ListView mListView;
     private MobileServiceClient mClient;
-    private MobileServiceTable<PhotoLocationNote> mToDoTable;
+    private MobileServiceTable<PhotoLocationNote> mPhotoLocationNote;
     private final static int MY_REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 102;
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private String HubEndpoint = null;
@@ -159,7 +159,7 @@ public class NoteListActivity extends AppCompatActivity
                     return client;
                 }
             });
-            mToDoTable = mClient.getTable(PhotoLocationNote.class);
+            mPhotoLocationNote = mClient.getTable(PhotoLocationNote.class);
         }catch (MalformedURLException e) {
             Toast.makeText(NoteListActivity.this, "There was an error creating the Mobile Service. Verify the URL", Toast.LENGTH_LONG ).show();
         } catch (Exception e){
@@ -301,7 +301,7 @@ public class NoteListActivity extends AppCompatActivity
     }
 
     public PhotoLocationNote addItemInTable(PhotoLocationNote item) throws ExecutionException, InterruptedException {
-        return mToDoTable.insert(item).get();
+        return mPhotoLocationNote.insert(item).get();
     }
 
     private void startProgressDialog(){

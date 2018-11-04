@@ -14,7 +14,7 @@ public class NoteTable {
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_DATE = "date";
     public static final String COLUMN_LATITUDE = "latitude";
-    public static final String COLUMN_LONGITUDE = "longitue";
+    public static final String COLUMN_LONGITUDE = "longitude";
     public static final String COLUMN_ADDRESS = "address";
     public static final String COLUMN_IMAGE = "image";
 

@@ -81,7 +81,7 @@ public class MapsActivity extends AppCompatActivity implements
     private LocationRequest mLocationRequest;
     private EditText etLocationEntry;
 
-    private FusedLocationProviderClient mFusedLocationClient;
+        private FusedLocationProviderClient mFusedLocationClient;
     private Location mLastLocation;
     LocationCallback mLocationCallback;
 
